@@ -1,7 +1,9 @@
 language: java
 
 notifications:
-  email: true
+  email:
+    on_success: never
+    on_failure: always
 
 jdk:
 - oraclejdk11
