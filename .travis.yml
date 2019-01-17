@@ -5,8 +5,16 @@ notifications:
     on_success: never
     on_failure: always
 
-jdk:
-- oraclejdk11
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      jdk: oraclejdk11
+      env:
+        - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw"
+
+# Skip the rest of the installation step entirely
+install: true
 
 script: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 script: mvn test -B
