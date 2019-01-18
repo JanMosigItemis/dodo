@@ -1,42 +1,51 @@
 package de.itemis.jmo.dodo.ui;
 
-import static org.testfx.assertions.api.Assertions.assertThat;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
-import org.testfx.api.FxRobot;
-import org.testfx.framework.junit5.ApplicationExtension;
-import org.testfx.framework.junit5.Start;
 
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
+import java.net.URI;
 
-@ExtendWith(ApplicationExtension.class)
+import de.itemis.jmo.dodo.tests.DodoTestRunner;
+import de.itemis.jmo.dodo.tests.FakeServer;
+import de.itemis.jmo.dodo.tests.JavaFxDodoTestRunner;
+
 @RunWith(JUnitPlatform.class)
 public class AppUiTest {
 
-    private Button button;
+    private static final String ARTIFACT_NAME = "test.artifact.one";
 
-    @Start
-    void onStart(Stage stage) {
-        button = new Button("click me!");
-        button.setId("myButton");
-        button.setOnAction(actionEvent -> button.setText("clicked!"));
-        stage.setScene(new Scene(new StackPane(button), 100, 100));
-        stage.show();
+    private static FakeServer fakeServer;
+
+    private DodoTestRunner dodoTestRunner;
+
+    @BeforeAll
+    public static void setUpStatic() {
+        fakeServer = new FakeServer();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        dodoTestRunner = new JavaFxDodoTestRunner();
+        dodoTestRunner.beforeEach();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        if (dodoTestRunner != null) {
+            dodoTestRunner.afterEach();
+        }
+        fakeServer.stop();
     }
 
     @Test
-    void should_contain_button(FxRobot robot) {
-        assertThat(button).hasText("click me!");
-        assertThat(robot.lookup("#myButton").queryAs(Button.class)).hasText("click me!");
-        assertThat(robot.lookup(".button").queryAs(Button.class)).hasText("click me!");
-        assertThat(robot.lookup(".button").queryButton()).hasText("click me!");
-        robot.clickOn(button);
-        assertThat(robot.lookup(".button").queryButton()).hasText("clicked!");
+    public void when_downloading_existingArtifact_indicate_success() {
+        URI artifactUri = fakeServer.provide(ARTIFACT_NAME);
+        dodoTestRunner.addDownloadSource(ARTIFACT_NAME, artifactUri);
+        dodoTestRunner.download(ARTIFACT_NAME);
+        dodoTestRunner.assertDownloadSuccessIndicated(ARTIFACT_NAME);
     }
 }
