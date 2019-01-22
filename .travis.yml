@@ -22,10 +22,14 @@ deploy:
   api_key:
     secure: naOVnJc6XWMUpDyQ2lCMa+3ZrW3QYgPsHc6ih5e2Kw0K2ngACHdGgkbvQKgc/tkkwIEEN08wRtapS4+gcZTU90VgWXuaTtYwYjm5evbRUO/zWScQPDt/t52axBtOozJhl/8l2j9q7/UUFKk9DOZgkxlXL8wxzajf2P7H9bAvGYEKH0Iyxzzzvalm54+Wh3rtdmBkeviD2SZv9pqVr6EevsnGMq+x+EsljEmAy4KY93RaT++88Nf9fREeqwSxuXZ7UvYVQaIo83aipjeBhSxjV4QZFdsR94GFfEwBGvycOetUxx22KLzft2lyD8sHRfl4F0ae//7wuPDu1M0/evdBx0Suf8beElndR4Am2296YARBd9WPX4yj5rM3XDmjE/kecCB+BRnWRMz5FrEv9+Wvokeb9MHHizXWivMtSsRn27LpXw+ngS/teLeyj8ZwZ2F7S5MdN++TC7LYRKfX80MqQz7FCPn0KZY138mW2CUDLinj7vcYz3LbPV8Qnh9i3sn0LahgQDoRn8FGMoeg8hTsfsABEsBdenj29Hm9KgBlYYWxQOerU3Y6lzMNlrRckFjJcYEybBudru9iDxh03nXyGSJcFlv++j0twxQPQmB8wFJ+4306pKfvfAxgdGwMHIX8vB02lcswhJHQd+65lhTTKtnnqWOKaRp57JiYK3apxYY=
   file: target/dodo-1.0.0-SNAPSHOT.jar
+  draft: true
   on:
     repo: JanMosigItemis/dodo
     branch: develop
-    draft: true
+  draft: false
+  on:
+    repo: JanMosigItemis/dodo
+    tags: true
     
 cache:
   directories:
