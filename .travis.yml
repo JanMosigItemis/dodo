@@ -26,3 +26,7 @@ deploy:
     repo: JanMosigItemis/dodo
     branch: develop
     draft: true
+    
+cache:
+  directories:
+  - $HOME/.m2
