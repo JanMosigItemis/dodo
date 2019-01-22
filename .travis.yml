@@ -25,3 +25,4 @@ deploy:
   on:
     repo: JanMosigItemis/dodo
     branch: develop
+    draft: true
