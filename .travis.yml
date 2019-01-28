@@ -1,3 +1,4 @@
+if: tag != dodo-snapshot-build
 language: java
 
 notifications:
