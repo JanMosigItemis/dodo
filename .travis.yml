@@ -29,8 +29,8 @@ deploy:
     api_key:
       secure: $GITHUB_API_KEY
     file: target/dodo-1.0.0-SNAPSHOT.jar
-    overwrite: true
     skip-cleanup: true
+    overwrite: true
     on:
       repo: JanMosigItemis/dodo
       tags: true
