@@ -16,25 +16,35 @@ install: true
 # -v Display version information WITHOUT stopping build
 script: mvn clean install -B -V
 
+before_deploy:
+  - git tag -f dodo-snapshot-build
+  - git remote add gh 
+    https://JanMosigItemis:${GITHUB_API_KEY}@github.com/${TRAVIS_REPO_SLUG}.git
+  - git push -f gh dodo-snapshot-build
+  - git remote remove gh
+
 deploy:
   - provider: releases
     skip-cleanup: true
     api_key:
-      secure: naOVnJc6XWMUpDyQ2lCMa+3ZrW3QYgPsHc6ih5e2Kw0K2ngACHdGgkbvQKgc/tkkwIEEN08wRtapS4+gcZTU90VgWXuaTtYwYjm5evbRUO/zWScQPDt/t52axBtOozJhl/8l2j9q7/UUFKk9DOZgkxlXL8wxzajf2P7H9bAvGYEKH0Iyxzzzvalm54+Wh3rtdmBkeviD2SZv9pqVr6EevsnGMq+x+EsljEmAy4KY93RaT++88Nf9fREeqwSxuXZ7UvYVQaIo83aipjeBhSxjV4QZFdsR94GFfEwBGvycOetUxx22KLzft2lyD8sHRfl4F0ae//7wuPDu1M0/evdBx0Suf8beElndR4Am2296YARBd9WPX4yj5rM3XDmjE/kecCB+BRnWRMz5FrEv9+Wvokeb9MHHizXWivMtSsRn27LpXw+ngS/teLeyj8ZwZ2F7S5MdN++TC7LYRKfX80MqQz7FCPn0KZY138mW2CUDLinj7vcYz3LbPV8Qnh9i3sn0LahgQDoRn8FGMoeg8hTsfsABEsBdenj29Hm9KgBlYYWxQOerU3Y6lzMNlrRckFjJcYEybBudru9iDxh03nXyGSJcFlv++j0twxQPQmB8wFJ+4306pKfvfAxgdGwMHIX8vB02lcswhJHQd+65lhTTKtnnqWOKaRp57JiYK3apxYY=
+      secure: $GITHUB_API_KEY
     file: target/dodo-1.0.0-SNAPSHOT.jar
     draft: true
     on:
       repo: JanMosigItemis/dodo
       branch: develop
-      tags: false
+      tags: true
+    overwrite: true
+    target_commitish: $TRAVIS_COMMIT
   - provider: releases
     skip-cleanup: true
     api_key:
-      secure: naOVnJc6XWMUpDyQ2lCMa+3ZrW3QYgPsHc6ih5e2Kw0K2ngACHdGgkbvQKgc/tkkwIEEN08wRtapS4+gcZTU90VgWXuaTtYwYjm5evbRUO/zWScQPDt/t52axBtOozJhl/8l2j9q7/UUFKk9DOZgkxlXL8wxzajf2P7H9bAvGYEKH0Iyxzzzvalm54+Wh3rtdmBkeviD2SZv9pqVr6EevsnGMq+x+EsljEmAy4KY93RaT++88Nf9fREeqwSxuXZ7UvYVQaIo83aipjeBhSxjV4QZFdsR94GFfEwBGvycOetUxx22KLzft2lyD8sHRfl4F0ae//7wuPDu1M0/evdBx0Suf8beElndR4Am2296YARBd9WPX4yj5rM3XDmjE/kecCB+BRnWRMz5FrEv9+Wvokeb9MHHizXWivMtSsRn27LpXw+ngS/teLeyj8ZwZ2F7S5MdN++TC7LYRKfX80MqQz7FCPn0KZY138mW2CUDLinj7vcYz3LbPV8Qnh9i3sn0LahgQDoRn8FGMoeg8hTsfsABEsBdenj29Hm9KgBlYYWxQOerU3Y6lzMNlrRckFjJcYEybBudru9iDxh03nXyGSJcFlv++j0twxQPQmB8wFJ+4306pKfvfAxgdGwMHIX8vB02lcswhJHQd+65lhTTKtnnqWOKaRp57JiYK3apxYY=
+      secure: $GITHUB_API_KEY
     file: target/dodo-1.0.0-SNAPSHOT.jar
     draft: false
     on:
       repo: JanMosigItemis/dodo
+      branch: master
       tags: true
     
 cache:
