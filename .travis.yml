@@ -16,6 +16,13 @@ install: true
 # -v Display version information WITHOUT stopping build
 script: mvn clean install -B -V
 
+before_deploy:
+  - git tag -f dodo-snapshot-build
+  - git remote add gh 
+    https://JanMosigItemis:${GITHUB_API_KEY}@github.com/${TRAVIS_REPO_SLUG}.git
+  - git push -f gh dodo-snapshot-build
+  - git remote remove gh
+
 deploy:
   - provider: releases
     skip-cleanup: true
@@ -24,7 +31,6 @@ deploy:
     file: target/dodo-1.0.0-SNAPSHOT.jar
     overwrite: true
     draft: true
-    name: nameval
     on:
       repo: JanMosigItemis/dodo
       branch: develop
