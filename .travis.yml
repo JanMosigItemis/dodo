@@ -25,10 +25,10 @@ after_success:
 
 deploy:
   - provider: releases
-    skip-cleanup: true
     api_key:
       secure: $GITHUB_API_KEY
     file: target/dodo-1.0.0-SNAPSHOT.jar
+    skip-cleanup: true
     overwrite: true
     on:
       repo: JanMosigItemis/dodo
