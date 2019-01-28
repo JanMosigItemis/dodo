@@ -20,8 +20,8 @@ script: mvn clean install -B -V
 after_success:
     - export SNAPSHOT_TAG=`(git tag -l | grep dodo-snapshot-build)`
     - git remote add gh https://JanMosigItemis:${GITHUB_API_KEY}@github.com/JanMosigItemis/dodo.git
-    - if [ ! -z "${SNAPSHOT_TAG}" ]; then git push gh --delete ${SNAPSHOT_TAG} && git tag -d ${SNAPSHOT_TAG} ; fi  
-    - if [ -z "${TRAVIS_TAG}" ]; then export TRAVIS_TAG=dodo-snapshot-build-$(date +'%Y%m%d%H%M%S') && git tag -a $TRAVIS_TAG; fi
+    - if [ ! -z "${SNAPSHOT_TAG}" ]; then git push gh --delete "${SNAPSHOT_TAG}" && git tag -d "${SNAPSHOT_TAG}" ; fi  
+    - if [ -z "${TRAVIS_TAG}" ]; then export TRAVIS_TAG=dodo-snapshot-build-$(date +'%Y%m%d%H%M%S') && git tag -a "${TRAVIS_TAG}" -m "${TRAVIS_TAG}"; fi
     - git remote remove gh
 
 deploy:
