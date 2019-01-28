@@ -1,4 +1,4 @@
-if: tag !=~ /^dodo-snapshot-build-.*$/
+if: NOT tag =~ /^(dodo-snapshot-build).*$/
 language: java
 
 notifications:
