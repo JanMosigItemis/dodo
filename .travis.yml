@@ -33,9 +33,7 @@ deploy:
     on:
       repo: JanMosigItemis/dodo
       branch: develop
-      tags: true
-    overwrite: true
-    target_commitish: $TRAVIS_COMMIT
+      tags: false
   - provider: releases
     skip-cleanup: true
     api_key:
@@ -45,7 +43,7 @@ deploy:
     on:
       repo: JanMosigItemis/dodo
       branch: master
-      tags: true
+      tags: false
     
 cache:
   directories:
