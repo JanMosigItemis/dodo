@@ -17,11 +17,8 @@ install: true
 script: mvn clean install -B -V
 
 before_deploy:
-  - git tag -f dodo-snapshot-build
-  - git remote add gh 
-    https://JanMosigItemis:${GITHUB_API_KEY}@github.com/${TRAVIS_REPO_SLUG}.git
-  - git push -f gh dodo-snapshot-build
-  - git remote remove gh
+    - export TRAVIS_TAG=dodo-snapshot-build
+    - git tag $TRAVIS_TAG
 
 deploy:
   - provider: releases
@@ -30,21 +27,8 @@ deploy:
       secure: $GITHUB_API_KEY
     file: target/dodo-1.0.0-SNAPSHOT.jar
     overwrite: true
-    draft: true
     on:
       repo: JanMosigItemis/dodo
-      branch: develop
-      tags: false
-  - provider: releases
-    skip-cleanup: true
-    api_key:
-      secure: $GITHUB_API_KEY
-    file: target/dodo-1.0.0-SNAPSHOT.jar
-    draft: false
-    on:
-      repo: JanMosigItemis/dodo
-      branch: master
-      tags: false
     
 cache:
   directories:
