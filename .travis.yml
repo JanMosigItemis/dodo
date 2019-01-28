@@ -1,20 +1,40 @@
+if: tag != dodo-snapshot-build
 language: java
 
 notifications:
   email:
     on_success: never
     on_failure: always
-
+    
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      jdk: oraclejdk11
-      env:
-        - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw"
-
-# Skip the rest of the installation step entirely
+  - os: linux
+    dist: trusty
+    jdk: oraclejdk11
 install: true
 
-script: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-script: mvn test -B
+# -B enables non interactive mode and disables colors
+# -v Display version information WITHOUT stopping build
+script: mvn clean install -B -V
+
+after_success:
+    - export SNAPSHOT_TAG=`(git tag -l | grep dodo-snapshot-build)`
+    - git remote add gh https://JanMosigItemis:${GITHUB_API_KEY}@github.com/JanMosigItemis/dodo.git
+    - if [ ! -z "${SNAPSHOT_TAG}" ]; then git push gh --delete ${SNAPSHOT_TAG} && git tag -d ${SNAPSHOT_TAG} ; fi  
+    - if [ -z "${TRAVIS_TAG}" ]; then export TRAVIS_TAG=dodo-snapshot-build && git tag $TRAVIS_TAG; fi
+    - git remote remove gh
+
+deploy:
+  - provider: releases
+    api_key:
+      secure: $GITHUB_API_KEY
+    file: target/dodo-1.0.0-SNAPSHOT.jar
+    skip-cleanup: true
+    overwrite: true
+    on:
+      repo: JanMosigItemis/dodo
+      tags: true
+    
+cache:
+  directories:
+  - $HOME/.m2
