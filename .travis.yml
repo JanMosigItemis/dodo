@@ -16,7 +16,7 @@ install: true
 # -v Display version information WITHOUT stopping build
 script: mvn clean install -B -V
 
-before_deploy:
+after_success:
     - export TRAVIS_TAG=dodo-snapshot-build
     - git tag $TRAVIS_TAG
 
@@ -29,6 +29,7 @@ deploy:
     overwrite: true
     on:
       repo: JanMosigItemis/dodo
+      tags: true
     
 cache:
   directories:
