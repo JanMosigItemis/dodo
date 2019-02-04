@@ -25,9 +25,12 @@ deploy:
   - provider: releases
     api_key:
       secure: $GITHUB_API_KEY
-    file: target/dodo-1.0.0-SNAPSHOT.jar
+    file:
+    - $ARTIFACT_DIR/$ARTIFACT
+    - $ARTIFACT_DIR/$ARTIFACT.sha512
     skip-cleanup: true
     overwrite: true
+    draft: false
     on:
       repo: JanMosigItemis/dodo
       tags: true

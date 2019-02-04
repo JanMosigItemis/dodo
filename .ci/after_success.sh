@@ -2,6 +2,7 @@
 
 export VER="1.0.0"
 export TIMESTAMP=`(date +'%Y%m%d%H%M%S')`
+export ARTIFACT_DIR="target"
 
 # if no travis tag
 if [ -z "${TRAVIS_TAG}" ]; then
@@ -21,7 +22,10 @@ if [ -z "${TRAVIS_TAG}" ]; then
     git tag -a "${TRAVIS_TAG}" -m "${TRAVIS_TAG}"
     # git push gh HEAD:"${BRANCH}" --follow-tags
     git remote remove gh
-	export ARTIFACT=target/dodo-"${VER}"-SNAPSHOT.jar
+	export ARTIFACT=dodo-"${VER}"-SNAPSHOT.jar
 else 
-    export ARTIFACT=target/dodo-"${VER}"-"${TIMESTAMP}".jar
+    export ARTIFACT=dodo-"${VER}"-"${TIMESTAMP}".jar
 fi 
+
+cd "${ARTIFACT_DIR}"
+sha512sum > "${ARTIFACT}".sha512
