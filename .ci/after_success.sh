@@ -29,6 +29,7 @@ else
     export ARTIFACT=dodo-"${VER}"-"${TIMESTAMP}".jar
 fi 
 
+echo "ARTIFACT=${ARTIFACT}"
 cd "${ARTIFACT_DIR}"
 sha512sum "${ARTIFACT}" > "${ARTIFACT}".sha512
 cd ..
