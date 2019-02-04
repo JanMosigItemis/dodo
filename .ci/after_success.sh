@@ -28,4 +28,5 @@ else
 fi 
 
 cd "${ARTIFACT_DIR}"
-sha512sum > "${ARTIFACT}".sha512
+sha512sum "${ARTIFACT}" > "${ARTIFACT}".sha512
+cd ..
