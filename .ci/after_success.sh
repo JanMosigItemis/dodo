@@ -24,6 +24,7 @@ if [ -z "${TRAVIS_TAG}" ]; then
     git remote remove gh
 	export ARTIFACT=dodo-"${VER}"-SNAPSHOT.jar
 else 
+    mv "${ARTIFACT_DIR}/dodo-"${VER}".jar "${ARTIFACT_DIR}/dodo-"${VER}"-"${TIMESTAMP}".jar
     export ARTIFACT=dodo-"${VER}"-"${TIMESTAMP}".jar
 fi 
 
