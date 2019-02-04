@@ -17,6 +17,7 @@ install: true
 # -v Display version information WITHOUT stopping build
 script: mvn clean install -B -V
 
+# See that the script is not run in isolation, because it changes global env variables.
 after_success:
     - . ./.ci/after_success.sh
 

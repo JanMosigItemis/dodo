@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export VER="1.0.0"
+export TIMESTAMP=`(date +'%Y%m%d%H%M%S')`
+
 # if no travis tag
 if [ -z "${TRAVIS_TAG}" ]; then
     # see https://graysonkoonce.com/getting-the-current-branch-name-during-a-pull-request-in-travis-ci/
@@ -14,8 +17,11 @@ if [ -z "${TRAVIS_TAG}" ]; then
         git tag -d "${SNAPSHOT_TAG}"
     fi 
     
-    export TRAVIS_TAG=dodo-snapshot-build-`(date +'%Y%m%d%H%M%S')`
+    export TRAVIS_TAG=dodo-snapshot-build-"${TIMESTAMP}"
     git tag -a "${TRAVIS_TAG}" -m "${TRAVIS_TAG}"
     # git push gh HEAD:"${BRANCH}" --follow-tags
     git remote remove gh
-fi
+	export ARTIFACT=target/dodo-"${VER}"-SNAPSHOT.jar
+else 
+    export ARTIFACT=target/dodo-"${VER}"-"${TIMESTAMP}".jar
+fi 
