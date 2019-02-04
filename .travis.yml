@@ -15,7 +15,7 @@ install: true
 
 # -B enables non interactive mode and disables colors
 # -v Display version information WITHOUT stopping build
-script: mvn clean install -B -V
+script: mvn clean install -B -V -DRUNS_ON_CI=true
 
 # See that the script is not run in isolation, because it changes global env variables.
 after_success:
@@ -26,8 +26,12 @@ deploy:
     api_key:
       secure: $GITHUB_API_KEY
     file:
-    - $ARTIFACT_DIR/$ARTIFACT
-    - $ARTIFACT_DIR/$ARTIFACT.sha512
+    - $ARTIFACT_DIR/$ARTIFACT_WIN
+    - $ARTIFACT_DIR/$ARTIFACT_WIN.sha512
+    - $ARTIFACT_DIR/$ARTIFACT_MAC
+    - $ARTIFACT_DIR/$ARTIFACT_MAC.sha512
+    - $ARTIFACT_DIR/$ARTIFACT_LINUX
+    - $ARTIFACT_DIR/$ARTIFACT_LINUX.sha512
     skip-cleanup: true
     overwrite: true
     draft: false

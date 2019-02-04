@@ -23,13 +23,23 @@ if [ -z "${TRAVIS_TAG}" ] && [ "${BRANCH}" != "master" ] ; then
     git tag -a "${TRAVIS_TAG}" -m "${TRAVIS_TAG}"
     # git push gh HEAD:"${BRANCH}" --follow-tags
     git remote remove gh
-	export ARTIFACT=dodo-"${VER}".jar
+	export ARTIFACT_WIN=dodo-"${VER}"-win.jar
+	export ARTIFACT_MAC=dodo-"${VER}"-mac.jar
+	export ARTIFACT_LINUX=dodo-"${VER}"-linux.jar
 else 
-    mv "${ARTIFACT_DIR}"/dodo-"${VER}".jar "${ARTIFACT_DIR}"/dodo-"${VER}"-"${TIMESTAMP}".jar
-    export ARTIFACT=dodo-"${VER}"-"${TIMESTAMP}".jar
+    mv "${ARTIFACT_DIR}"/dodo-"${VER}"-win.jar "${ARTIFACT_DIR}"/dodo-"${VER}"-win-"${TIMESTAMP}".jar
+    mv "${ARTIFACT_DIR}"/dodo-"${VER}"-mac.jar "${ARTIFACT_DIR}"/dodo-"${VER}"-mac-"${TIMESTAMP}".jar
+    mv "${ARTIFACT_DIR}"/dodo-"${VER}"-linux.jar "${ARTIFACT_DIR}"/dodo-"${VER}"-linux-"${TIMESTAMP}".jar
+    export ARTIFACT_WIN=dodo-"${VER}"-win-"${TIMESTAMP}".jar
+    export ARTIFACT_MAC=dodo-"${VER}"-mac-"${TIMESTAMP}".jar
+    export ARTIFACT_LINUX=dodo-"${VER}"-linux-"${TIMESTAMP}".jar
 fi 
 
-echo "ARTIFACT=${ARTIFACT}"
+echo "ARTIFACT_WIN=${ARTIFACT_WIN}"
+echo "ARTIFACT_MAC=${ARTIFACT_MAC}"
+echo "ARTIFACT_LINUX=${ARTIFACT_LINUX}"
 cd "${ARTIFACT_DIR}"
-sha512sum "${ARTIFACT}" > "${ARTIFACT}".sha512
+sha512sum "${ARTIFACT_WIN}" > "${ARTIFACT_WIN}".sha512
+sha512sum "${ARTIFACT_MAC}" > "${ARTIFACT_MAC}".sha512
+sha512sum "${ARTIFACT_LINUX}" > "${ARTIFACT_LINUX}".sha512
 cd ..
