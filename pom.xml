@@ -97,12 +97,42 @@
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-base</artifactId>
                 <version>${openjfx.version}</version>
+                <classifier>win</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>mac</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>linux</classifier>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-controls</artifactId>
                 <version>${openjfx.version}</version>
+                <classifier>win</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>mac</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>linux</classifier>
             </dependency>
             <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
             <dependency>
@@ -212,10 +242,32 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <classifier>mac</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <classifier>linux</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <classifier>mac</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <classifier>linux</classifier>
         </dependency>
         <dependency>
             <!-- Required to support null annotation checks according to 
