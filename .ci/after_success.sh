@@ -23,7 +23,7 @@ if [ -z "${TRAVIS_TAG}" ] && [ "${BRANCH}" != "master" ] ; then
     git tag -a "${TRAVIS_TAG}" -m "${TRAVIS_TAG}"
     # git push gh HEAD:"${BRANCH}" --follow-tags
     git remote remove gh
-	export ARTIFACT=dodo-"${VER}"-SNAPSHOT.jar
+	export ARTIFACT=dodo-"${VER}".jar
 else 
     mv "${ARTIFACT_DIR}"/dodo-"${VER}".jar "${ARTIFACT_DIR}"/dodo-"${VER}"-"${TIMESTAMP}".jar
     export ARTIFACT=dodo-"${VER}"-"${TIMESTAMP}".jar
