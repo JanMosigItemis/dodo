@@ -17,20 +17,20 @@ install: true
 # -v Display version information WITHOUT stopping build
 script: mvn clean install -B -V
 
+# See that the script is not run in isolation, because it changes global env variables.
 after_success:
-    - export SNAPSHOT_TAG=`(git tag -l | grep dodo-snapshot-build)`
-    - git remote add gh https://JanMosigItemis:${GITHUB_API_KEY}@github.com/JanMosigItemis/dodo.git
-    - if [ ! -z "${SNAPSHOT_TAG}" ]; then git push gh --delete "${SNAPSHOT_TAG}" && git tag -d "${SNAPSHOT_TAG}" ; fi  
-    - if [ -z "${TRAVIS_TAG}" ]; then export TRAVIS_TAG=dodo-snapshot-build-$(date +'%Y%m%d%H%M%S') && git tag -a "${TRAVIS_TAG}" -m "${TRAVIS_TAG}"; fi
-    - git remote remove gh
+    - . ./.ci/after_success.sh
 
 deploy:
   - provider: releases
     api_key:
       secure: $GITHUB_API_KEY
-    file: target/dodo-1.0.0-SNAPSHOT.jar
+    file:
+    - $ARTIFACT_DIR/$ARTIFACT
+    - $ARTIFACT_DIR/$ARTIFACT.sha512
     skip-cleanup: true
     overwrite: true
+    draft: false
     on:
       repo: JanMosigItemis/dodo
       tags: true
