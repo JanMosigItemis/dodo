@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export VER="1.0.0"
+export VER="1.0.1-SNAPSHOT"
 export TIMESTAMP=`(date +'%Y%m%d%H%M%S')`
 export ARTIFACT_DIR="target"
 
