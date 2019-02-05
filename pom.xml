@@ -5,7 +5,7 @@
 
     <groupId>de.itemis.jmo</groupId>
     <artifactId>dodo</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <name>Dodo</name>
     <description>Dodo JAR</description>
@@ -18,6 +18,7 @@
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
+        <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -97,18 +98,63 @@
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-base</artifactId>
                 <version>${openjfx.version}</version>
+                <classifier>win</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>mac</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-base</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>linux</classifier>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-controls</artifactId>
                 <version>${openjfx.version}</version>
+                <classifier>win</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>mac</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>linux</classifier>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
             <dependency>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-graphics</artifactId>
                 <version>${openjfx.version}</version>
+                <classifier>win</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>mac</classifier>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${openjfx.version}</version>
+                <classifier>linux</classifier>
             </dependency>
             <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
             <dependency>
@@ -218,14 +264,47 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <classifier>mac</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <classifier>linux</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <classifier>mac</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <classifier>linux</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
+            <classifier>win</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <classifier>mac</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <classifier>linux</classifier>
         </dependency>
         <dependency>
             <!-- Required to support null annotation checks according to 
@@ -356,6 +435,11 @@
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${maven-shade-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -416,37 +500,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <configuration>
-                    <!-- <minimizeJar>true</minimizeJar> -->
-                    <transformers>
-                        <transformer
-                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>de.itemis.jmo.dodo.Dodo</mainClass>
-                        </transformer>
-                    </transformers>
-                    <!-- Shading breaks module encapsulation anyway, see: 
-                        https://stackoverflow.com/questions/51751981/why-does-maven-shade-plugin-remove-module-info-class -->
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>**/module-info.class</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
@@ -461,20 +514,214 @@
                     <mainClass>de.itemis.jmo.dodo.Dodo</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
     <profiles>
         <profile>
-            <id>dodo_default</id>
+            <id>headless</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!deactivate_headless_build</name>
+                </property>
             </activation>
             <properties>
                 <jvm.options>-Djava.awt.headless=true
                     -Dtestfx.robot=glass -Dtestfx.headless=true
                     -Dprism.order=sw</jvm.options>
             </properties>
+        </profile>
+        <profile>
+            <id>win</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+                <property>
+                    <name>!RUNS_ON_CI</name>
+                </property>
+            </activation>
+            <properties>
+                <current.os>win</current.os>
+            </properties>
+        </profile>
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+                <property>
+                    <name>!RUNS_ON_CI</name>
+                </property>
+            </activation>
+            <properties>
+                <current.os>mac</current.os>
+            </properties>
+        </profile>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+                <property>
+                    <name>!RUNS_ON_CI</name>
+                </property>
+            </activation>
+            <properties>
+                <current.os>linux</current.os>
+            </properties>
+        </profile>
+        <profile>
+            <id>produce_for_current_os_only</id>
+            <activation>
+                <property>
+                    <name>!RUNS_ON_CI</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <configuration>
+                            <!-- Activating jar minimization does seem to 
+                                break the included JavaFX rt classes. -->
+                            <!-- <minimizeJar>true</minimizeJar> -->
+                            <transformers>
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>de.itemis.jmo.dodo.Dodo</mainClass>
+                                </transformer>
+                            </transformers>
+                            <!-- Shading breaks module encapsulation anyway, 
+                                see: https://stackoverflow.com/questions/51751981/why-does-maven-shade-plugin-remove-module-info-class -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>**/module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>${current.os}</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                                    <shadedClassifierName>${current.os}</shadedClassifierName>
+                                    <artifactSet>
+                                        <includes>
+                                            <include>org.openjfx:*:*:${current.os}:*</include>
+                                        </includes>
+                                    </artifactSet>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>produce_for_every_os</id>
+            <activation>
+                <property>
+                    <name>RUNS_ON_CI</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <configuration>
+                            <!-- Activating jar minimization does seem to 
+                                break the included JavaFX rt classes. -->
+                            <!-- <minimizeJar>true</minimizeJar> -->
+                            <transformers>
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>de.itemis.jmo.dodo.Dodo</mainClass>
+                                </transformer>
+                            </transformers>
+                            <!-- Shading breaks module encapsulation anyway, 
+                                see: https://stackoverflow.com/questions/51751981/why-does-maven-shade-plugin-remove-module-info-class -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>**/module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>win</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                                    <shadedClassifierName>win</shadedClassifierName>
+                                    <artifactSet>
+                                        <excludes>
+                                            <exclude>org.openjfx:*:*:mac:*</exclude>
+                                            <exclude>org.openjfx:*:*:linux:*</exclude>
+                                        </excludes>
+                                    </artifactSet>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>mac</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                                    <shadedClassifierName>mac</shadedClassifierName>
+                                    <artifactSet>
+                                        <excludes>
+                                            <exclude>org.openjfx:*:*:win:*</exclude>
+                                            <exclude>org.openjfx:*:*:linux:*</exclude>
+                                        </excludes>
+                                    </artifactSet>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>linux</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                                <configuration>
+                                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                                    <shadedClassifierName>linux</shadedClassifierName>
+                                    <artifactSet>
+                                        <excludes>
+                                            <exclude>org.openjfx:*:*:win:*</exclude>
+                                            <exclude>org.openjfx:*:*:mac:*</exclude>
+                                        </excludes>
+                                    </artifactSet>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
