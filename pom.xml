@@ -5,7 +5,7 @@
 
     <groupId>de.itemis.jmo</groupId>
     <artifactId>dodo</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
 
     <name>Dodo</name>
     <description>Dodo JAR</description>
