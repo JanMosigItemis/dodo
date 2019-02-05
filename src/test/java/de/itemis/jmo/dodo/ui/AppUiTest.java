@@ -39,6 +39,7 @@ public class AppUiTest {
             dodoTestRunner.afterEach();
         }
         fakeServer.stop();
+        dodoTestRunner = null;
     }
 
     @Test
