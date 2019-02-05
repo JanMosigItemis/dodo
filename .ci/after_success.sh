@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export VER="1.1.0-SNAPSHOT"
+export TZ=Europe/Berlin
 export TIMESTAMP=`(date +'%Y%m%d%H%M%S')`
 export ARTIFACT_DIR="target"
 
