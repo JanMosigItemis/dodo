@@ -22,7 +22,7 @@ if [ -z "${TRAVIS_TAG}" ] && [ "${BRANCH}" != "master" ] ; then
     
     export TRAVIS_TAG=dodo-snapshot-build-"${TIMESTAMP}"
     git tag -a "${TRAVIS_TAG}" -m "${TRAVIS_TAG}"
-    # git push gh HEAD:"${BRANCH}" --follow-tags
+    git push gh HEAD:"${BRANCH}" --follow-tags
     git remote remove gh
 	export ARTIFACT_WIN=dodo-"${VER}"-win.jar
 	export ARTIFACT_MAC=dodo-"${VER}"-mac.jar
