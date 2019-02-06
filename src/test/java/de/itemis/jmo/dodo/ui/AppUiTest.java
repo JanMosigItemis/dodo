@@ -20,7 +20,7 @@ public class AppUiTest {
 
     private static FakeServer fakeServer;
 
-    private DodoTestRunner dodoTestRunner;
+    private DodoTestRunner dodo;
 
     @BeforeAll
     public static void setUpStatic() {
@@ -29,24 +29,35 @@ public class AppUiTest {
 
     @BeforeEach
     public void setUp() {
-        dodoTestRunner = new JavaFxDodoTestRunner();
-        dodoTestRunner.beforeEach();
+        dodo = new JavaFxDodoTestRunner();
+        dodo.beforeEach();
     }
 
     @AfterEach
     public void tearDown() {
-        if (dodoTestRunner != null) {
-            dodoTestRunner.afterEach();
+        if (dodo != null) {
+            dodo.afterEach();
         }
         fakeServer.stop();
-        dodoTestRunner = null;
+        dodo = null;
+    }
+
+    @Test
+    public void when_noSource_nothing_is_displayed() {
+        dodo.assertNoDownloadEntriesDisplayed();
+    }
+
+    @Test
+    public void when_downloadSource_hasBeenAdded_itGetsDisplayed() {
+        dodo.addDownloadSource(ARTIFACT_NAME, URI.create("someUri"));
+        dodo.assertDownloadEntryDisplayed(ARTIFACT_NAME);
     }
 
     @Test
     public void when_downloading_existingArtifact_indicate_success() {
         URI artifactUri = fakeServer.provide(ARTIFACT_NAME);
-        dodoTestRunner.addDownloadSource(ARTIFACT_NAME, artifactUri);
-        dodoTestRunner.download(ARTIFACT_NAME);
-        dodoTestRunner.assertDownloadSuccessIndicated(ARTIFACT_NAME);
+        dodo.addDownloadSource(ARTIFACT_NAME, artifactUri);
+        dodo.download(ARTIFACT_NAME);
+        dodo.assertDownloadSuccessIndicated(ARTIFACT_NAME);
     }
 }

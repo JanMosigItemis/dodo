@@ -33,4 +33,16 @@ public interface DodoTestRunner {
      */
     void assertDownloadSuccessIndicated(String artifactName);
 
+    /**
+     * Assert that the UI does not display any download entries.
+     */
+    void assertNoDownloadEntriesDisplayed();
+
+    /**
+     * Assert that the download entry matching the provided {@code artifactName} is being displayed.
+     *
+     * @param artifactName - The name of the artifact behind the entry.
+     */
+    void assertDownloadEntryDisplayed(String artifactName);
+
 }

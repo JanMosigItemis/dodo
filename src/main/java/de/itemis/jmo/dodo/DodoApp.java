@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import de.itemis.jmo.dodo.model.DownloadButtonTableCell;
 import de.itemis.jmo.dodo.model.DownloadEntry;
+import de.itemis.jmo.dodo.model.FakeCellValueFactory;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,6 +42,13 @@ public class DodoApp extends Application {
         this.items = items; // FXCollections.observableArrayList(items);
     }
 
+    /**
+     * We are not going to use the {@code primaryStage} here, because it may have already got its
+     * style set. Styles cannot be changed if a stage has been made visible, so in order to prevent
+     * for
+     * {@code java.lang.IllegalStateException: Cannot set style once stage has been set visible}, we
+     * do create our own stage here.
+     */
     @Override
     public void start(Stage primaryStage) {
         TableColumn<DownloadEntry, String> artifactNameCol = new TableColumn<>("Name");
@@ -52,6 +60,7 @@ public class DodoApp extends Application {
             new PropertyValueFactory<DownloadEntry, Boolean>("downloadFinished"));
 
         TableColumn<DownloadEntry, Button> downloadBtnCol = new TableColumn<>("Download");
+        downloadBtnCol.setCellValueFactory(new FakeCellValueFactory<>());
         downloadBtnCol.setCellFactory(DownloadButtonTableCell.forTableColumn("Download", entry -> {
             entry.download();
             itemTable.refresh();
@@ -64,12 +73,13 @@ public class DodoApp extends Application {
         itemTable.setId("itemTable");
         itemTable.setItems(items);
 
-        primaryStage.setTitle("Dodo");
-        primaryStage.initStyle(StageStyle.DECORATED);
+        Stage mainStage = new Stage();
+        mainStage.setTitle("Dodo");
+        mainStage.initStyle(StageStyle.DECORATED);
 
         StackPane root = new StackPane();
         root.getChildren().add(itemTable);
-        primaryStage.setScene(new Scene(root, 300, 250));
-        primaryStage.show();
+        mainStage.setScene(new Scene(root, 300, 250));
+        mainStage.show();
     }
 }

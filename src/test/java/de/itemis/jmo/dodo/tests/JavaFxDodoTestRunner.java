@@ -7,9 +7,9 @@ import static de.itemis.jmo.dodo.tests.TestHelper.fail;
 import static de.itemis.jmo.dodo.tests.TestHelper.printWarning;
 import static de.itemis.jmo.dodo.util.NodeIdSanitizer.sanitize;
 import static org.testfx.assertions.api.Assertions.assertThat;
+import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
 import org.testfx.framework.junit5.ApplicationTest;
-import org.testfx.util.WaitForAsyncUtils;
 
 import java.net.URI;
 
@@ -17,6 +17,7 @@ import de.itemis.jmo.dodo.DodoApp;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
 /**
@@ -26,6 +27,7 @@ import javafx.stage.Stage;
  */
 public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRunner {
 
+    private DodoApp dodo;
     private ObservableList<DownloadEntry> items;
 
     @Override
@@ -33,6 +35,7 @@ public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRun
         items = FXCollections.observableArrayList();
         try {
             internalBefore();
+            waitForFxEvents();
         } catch (Exception e) {
             fail("Could not init test runner.", e);
         }
@@ -41,8 +44,9 @@ public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRun
     @Override
     public void afterEach() {
         try {
-            internalAfter();
             items.clear();
+            waitForFxEvents();
+            internalAfter();
         } catch (Exception e) {
             printWarning("Test runner cleanup failed.", e);
         }
@@ -50,26 +54,45 @@ public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRun
 
     @Override
     public void start(Stage testStage) throws Exception {
-        var dodo = new DodoApp(items);
+        dodo = new DodoApp(items);
         dodo.start(testStage);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        dodo.stop();
     }
 
     @Override
     public void addDownloadSource(String artifactName, URI artifactUri) {
         DownloadEntry entry = new DownloadEntry(artifactName, artifactUri);
         items.add(entry);
-        WaitForAsyncUtils.waitForFxEvents();
+        waitForFxEvents();
     }
 
     @Override
     public void download(String artifactName) {
         String sanitizedArtifactName = sanitize(artifactName);
         clickOn("#downloadButton_" + sanitizedArtifactName);
-        WaitForAsyncUtils.waitForFxEvents();
+        waitForFxEvents();
     }
 
     @Override
     public void assertDownloadSuccessIndicated(String artifactName) {
-        assertThat(lookup("#itemTable").queryTableView()).hasTableCell(true);
+        assertThat(itemTable()).hasTableCell(true);
+    }
+
+    @Override
+    public void assertNoDownloadEntriesDisplayed() {
+        assertThat(itemTable()).hasExactlyNumRows(0);
+    }
+
+    @Override
+    public void assertDownloadEntryDisplayed(String artifactName) {
+        assertThat(itemTable()).containsRow(artifactName, false);
+    }
+
+    private TableView<Object> itemTable() {
+        return lookup("#itemTable").queryTableView();
     }
 }

@@ -14,7 +14,8 @@ public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Butt
     private final Button downloadButton;
 
     /**
-     * Create a new {@link Callback} that can be used together with a {@link TableColumn}.
+     * Create a new {@link Callback} that can be used in conjunction with
+     * {@link TableColumn#setCellFactory(Callback)}.
      *
      * @param buttonLabel - Label of the push button.
      * @param action - Action to run on button activation.

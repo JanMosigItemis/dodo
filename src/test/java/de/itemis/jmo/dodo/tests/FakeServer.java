@@ -57,7 +57,9 @@ public final class FakeServer {
             if (httpServer != null) {
                 httpServer.stop();
             }
-            deleteRecursively(resourceBasePath);
+            if (resourceBasePath != null) {
+                deleteRecursively(resourceBasePath);
+            }
         } catch (Exception e) {
             printWarning("Stopping fake server ran into a problem", e);
         } finally {
