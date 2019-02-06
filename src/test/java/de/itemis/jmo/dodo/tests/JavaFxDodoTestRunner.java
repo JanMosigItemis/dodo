@@ -5,6 +5,7 @@ package de.itemis.jmo.dodo.tests;
 
 import static de.itemis.jmo.dodo.tests.TestHelper.fail;
 import static de.itemis.jmo.dodo.tests.TestHelper.printWarning;
+import static de.itemis.jmo.dodo.util.NodeIdSanitizer.sanitize;
 import static org.testfx.assertions.api.Assertions.assertThat;
 
 import org.testfx.framework.junit5.ApplicationTest;
@@ -62,7 +63,8 @@ public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRun
 
     @Override
     public void download(String artifactName) {
-        clickOn("#downloadButton");
+        String sanitizedArtifactName = sanitize(artifactName);
+        clickOn("#downloadButton_" + sanitizedArtifactName);
         WaitForAsyncUtils.waitForFxEvents();
     }
 

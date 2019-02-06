@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 import java.net.URI;
 
+@RunWith(JUnitPlatform.class)
 public class DownloadEntryTest {
 
     private static final URI ARTIFACT_URI = URI.create("testUri");

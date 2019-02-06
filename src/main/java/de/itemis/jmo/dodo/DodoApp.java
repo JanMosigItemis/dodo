@@ -55,7 +55,6 @@ public class DodoApp extends Application {
         downloadBtnCol.setCellFactory(DownloadButtonTableCell.forTableColumn("Download", entry -> {
             entry.download();
             itemTable.refresh();
-            return entry;
         }));
 
         itemTable.getColumns().add(artifactNameCol);

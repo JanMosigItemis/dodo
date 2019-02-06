@@ -1,6 +1,8 @@
 package de.itemis.jmo.dodo.model;
 
-import java.util.function.Function;
+import static de.itemis.jmo.dodo.util.NodeIdSanitizer.sanitize;
+
+import java.util.function.Consumer;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
@@ -19,21 +21,16 @@ public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Butt
      * @return A new {@link Callback} instance.
      */
     public static Callback<TableColumn<DownloadEntry, Button>, TableCell<DownloadEntry, Button>> forTableColumn(String buttonLabel,
-            Function<DownloadEntry, DownloadEntry> action) {
+            Consumer<DownloadEntry> action) {
         return param -> new DownloadButtonTableCell(buttonLabel, action);
     }
 
-    private DownloadButtonTableCell(String buttonLabel, Function<DownloadEntry, DownloadEntry> action) {
+    private DownloadButtonTableCell(String buttonLabel, Consumer<DownloadEntry> action) {
         downloadButton = new Button(buttonLabel);
-        downloadButton.setId("downloadButton");
         downloadButton.setOnAction(actionEvent -> {
-            action.apply(getCurrentItem());
+            action.accept(getCurrentModel());
         });
         downloadButton.setMaxWidth(Double.MAX_VALUE);
-    }
-
-    private DownloadEntry getCurrentItem() {
-        return getTableView().getItems().get(getIndex());
     }
 
     @Override
@@ -44,7 +41,16 @@ public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Butt
             setText(null);
             setGraphic(null);
         } else {
+            if (downloadButton.getId() == null) {
+                DownloadEntry currentModel = getCurrentModel();
+                String newBtnId = "downloadButton_" + sanitize(currentModel.getArtifactName());
+                downloadButton.setId(newBtnId);
+            }
             setGraphic(downloadButton);
         }
+    }
+
+    private DownloadEntry getCurrentModel() {
+        return getTableView().getItems().get(getIndex());
     }
 }
