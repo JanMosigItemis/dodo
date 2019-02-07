@@ -14,9 +14,6 @@ import org.testfx.framework.junit5.ApplicationTest;
 import java.net.URI;
 
 import de.itemis.jmo.dodo.DodoApp;
-import de.itemis.jmo.dodo.model.DownloadEntry;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
@@ -28,11 +25,9 @@ import javafx.stage.Stage;
 public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRunner {
 
     private DodoApp dodo;
-    private ObservableList<DownloadEntry> items;
 
     @Override
     public void beforeEach() {
-        items = FXCollections.observableArrayList();
         try {
             internalBefore();
             waitForFxEvents();
@@ -44,7 +39,6 @@ public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRun
     @Override
     public void afterEach() {
         try {
-            items.clear();
             waitForFxEvents();
             internalAfter();
         } catch (Exception e) {
@@ -54,7 +48,7 @@ public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRun
 
     @Override
     public void start(Stage testStage) throws Exception {
-        dodo = new DodoApp(items);
+        dodo = new DodoApp();
         dodo.start(testStage);
     }
 
@@ -65,8 +59,11 @@ public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRun
 
     @Override
     public void addDownloadSource(String artifactName, URI artifactUri) {
-        DownloadEntry entry = new DownloadEntry(artifactName, artifactUri);
-        items.add(entry);
+        clickOn("#dodoMenu");
+        clickOn("#addSource");
+        lookup("#addSource_artifactName").queryTextInputControl().setText(artifactName);
+        lookup("#addSource_artifactUri").queryTextInputControl().setText(artifactUri.toString());
+        clickOn("#addSource_confirm");
         waitForFxEvents();
     }
 
