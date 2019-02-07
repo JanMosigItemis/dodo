@@ -9,18 +9,18 @@ import org.junit.runner.RunWith;
 
 import java.net.URI;
 
-import de.itemis.jmo.dodo.tests.DodoTestRunner;
-import de.itemis.jmo.dodo.tests.FakeServer;
-import de.itemis.jmo.dodo.tests.JavaFxDodoTestRunner;
+import de.itemis.jmo.dodo.tests.testfx.DodoUiTestDriver;
+import de.itemis.jmo.dodo.tests.testfx.JavaFxDodoTestDriver;
+import de.itemis.jmo.dodo.tests.util.FakeServer;
 
 @RunWith(JUnitPlatform.class)
-public class AppUiTest {
+public class DodoUiTest {
 
     private static final String ARTIFACT_NAME = "test.artifact.one";
 
     private static FakeServer fakeServer;
 
-    private DodoTestRunner dodo;
+    private DodoUiTestDriver dodo;
 
     @BeforeAll
     public static void setUpStatic() {
@@ -29,7 +29,7 @@ public class AppUiTest {
 
     @BeforeEach
     public void setUp() {
-        dodo = new JavaFxDodoTestRunner();
+        dodo = new JavaFxDodoTestDriver();
         dodo.beforeEach();
     }
 
@@ -54,7 +54,7 @@ public class AppUiTest {
     }
 
     @Test
-    public void when_downloading_existingArtifact_indicate_success() {
+    public void when_downloading_artifact_indicate_success() {
         URI artifactUri = fakeServer.provide(ARTIFACT_NAME);
         dodo.addDownloadSource(ARTIFACT_NAME, artifactUri);
         dodo.download(ARTIFACT_NAME);

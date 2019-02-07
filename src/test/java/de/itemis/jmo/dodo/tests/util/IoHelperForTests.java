@@ -1,6 +1,6 @@
-package de.itemis.jmo.dodo.tests;
+package de.itemis.jmo.dodo.tests.util;
 
-import static de.itemis.jmo.dodo.tests.TestHelper.fail;
+import static de.itemis.jmo.dodo.tests.util.TestHelper.fail;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;

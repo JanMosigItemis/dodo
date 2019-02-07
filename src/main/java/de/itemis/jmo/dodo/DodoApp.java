@@ -1,29 +1,19 @@
 package de.itemis.jmo.dodo;
 
-import java.net.URI;
-import java.util.Optional;
-
 import de.itemis.jmo.dodo.model.DownloadButtonTableCell;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.FakeCellValueFactory;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -76,7 +66,7 @@ public class DodoApp extends Application {
         dodoMenu.setId("dodoMenu");
         MenuItem addSourceMenuItem = new MenuItem("Add Source..");
         addSourceMenuItem.setId("addSource");
-        addSourceMenuItem.setOnAction(event -> displayAddSourceDialog().map(newEntry -> items.add(newEntry)));
+        addSourceMenuItem.setOnAction(event -> new AddDownloadSourceDialog().showAndWait().map(newEntry -> items.add(newEntry)));
         dodoMenu.getItems().add(addSourceMenuItem);
         mainMenu.getMenus().add(dodoMenu);
 
@@ -84,48 +74,5 @@ public class DodoApp extends Application {
         Scene mainScene = new Scene(root, 300, 250);
         mainStage.setScene(mainScene);
         mainStage.show();
-    }
-
-    private Optional<DownloadEntry> displayAddSourceDialog() {
-        Dialog<DownloadEntry> dialog = new Dialog<>();
-        dialog.setTitle("Add Source");
-        dialog.setHeaderText("Please enter the new source's data.");
-        dialog.setResizable(true);
-
-        Label nameLabel = new Label("Name: ");
-        Label uriLabel = new Label("URI: ");
-        TextField nameField = new TextField();
-        nameField.setId("addSource_artifactName");
-        TextField uriField = new TextField();
-        uriField.setId("addSource_artifactUri");
-
-        GridPane grid = new GridPane();
-        grid.add(nameLabel, 1, 1);
-        grid.add(nameField, 2, 1);
-        grid.add(uriLabel, 1, 2);
-        grid.add(uriField, 2, 2);
-        dialog.getDialogPane().setContent(grid);
-
-        ButtonType cancelBtnType = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().add(cancelBtnType);
-        Node cancelBtn = dialog.getDialogPane().lookupButton(cancelBtnType);
-        cancelBtn.setId("addSource_cancel");
-
-        ButtonType okBtnType = new ButtonType("OK", ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().add(okBtnType);
-        Node okBtn = dialog.getDialogPane().lookupButton(okBtnType);
-        okBtn.setId("addSource_confirm");
-
-        dialog.setResultConverter(clickedBtn -> {
-            DownloadEntry result = null;
-            if (clickedBtn == okBtnType) {
-                result = new DownloadEntry(nameField.getText(), URI.create(uriField.getText()));
-            }
-            return result;
-        });
-
-        nameField.requestFocus();
-
-        return dialog.showAndWait();
     }
 }

@@ -1,19 +1,13 @@
-package de.itemis.jmo.dodo.tests;
+package de.itemis.jmo.dodo.tests.testfx;
 
 import java.net.URI;
 
-
-public interface DodoTestRunner {
-
-    /**
-     * Call this method in your @BeforeEach test initialization method.
-     */
-    void beforeEach();
-
-    /**
-     * Call this method in your @AfterEach test initialization method.
-     */
-    void afterEach();
+/**
+ * A "driver" for UI tests of the whole Dodo app. It decouples the actual test code ("what to test")
+ * from the knowledge on how to actually perform those tests. This helps keeping the tests compiling
+ * in case test technology or app technology changes.
+ */
+public interface DodoUiTestDriver extends DodoTestsJunit5Lifecycle {
 
     /**
      * When this method returns, Dodo knows about another download source.

@@ -1,15 +1,11 @@
 /**
  *
  */
-package de.itemis.jmo.dodo.tests;
+package de.itemis.jmo.dodo.tests.testfx;
 
-import static de.itemis.jmo.dodo.tests.TestHelper.fail;
-import static de.itemis.jmo.dodo.tests.TestHelper.printWarning;
 import static de.itemis.jmo.dodo.util.NodeIdSanitizer.sanitize;
 import static org.testfx.assertions.api.Assertions.assertThat;
 import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
-
-import org.testfx.framework.junit5.ApplicationTest;
 
 import java.net.URI;
 
@@ -18,33 +14,11 @@ import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
 /**
- * A "driver" for UI tests. It decouples the actual test code ("what to test") from the knowledge on
- * how to actually perform those tests. This helps keeping the tests compiling in case test
- * technology or app technology changes.
+ * JavaFX based implementation of a {@link DodoUiTestDriver}.
  */
-public class JavaFxDodoTestRunner extends ApplicationTest implements DodoTestRunner {
+public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoUiTestDriver {
 
     private DodoApp dodo;
-
-    @Override
-    public void beforeEach() {
-        try {
-            internalBefore();
-            waitForFxEvents();
-        } catch (Exception e) {
-            fail("Could not init test runner.", e);
-        }
-    }
-
-    @Override
-    public void afterEach() {
-        try {
-            waitForFxEvents();
-            internalAfter();
-        } catch (Exception e) {
-            printWarning("Test runner cleanup failed.", e);
-        }
-    }
 
     @Override
     public void start(Stage testStage) throws Exception {

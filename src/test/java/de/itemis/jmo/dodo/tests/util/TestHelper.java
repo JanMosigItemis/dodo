@@ -1,4 +1,4 @@
-package de.itemis.jmo.dodo.tests;
+package de.itemis.jmo.dodo.tests.util;
 
 import static java.util.Objects.requireNonNull;
 

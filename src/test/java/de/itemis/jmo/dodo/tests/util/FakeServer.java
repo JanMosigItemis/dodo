@@ -1,9 +1,9 @@
-package de.itemis.jmo.dodo.tests;
+package de.itemis.jmo.dodo.tests.util;
 
-import static de.itemis.jmo.dodo.tests.IoHelperForTests.deleteRecursively;
-import static de.itemis.jmo.dodo.tests.IoHelperForTests.readBytes;
-import static de.itemis.jmo.dodo.tests.TestHelper.fail;
-import static de.itemis.jmo.dodo.tests.TestHelper.printWarning;
+import static de.itemis.jmo.dodo.tests.util.IoHelperForTests.deleteRecursively;
+import static de.itemis.jmo.dodo.tests.util.IoHelperForTests.readBytes;
+import static de.itemis.jmo.dodo.tests.util.TestHelper.fail;
+import static de.itemis.jmo.dodo.tests.util.TestHelper.printWarning;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
