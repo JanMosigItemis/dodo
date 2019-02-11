@@ -76,6 +76,11 @@ public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDr
     }
 
     @Override
+    public void assertUriHintLabelVisible() {
+        assertThat(lookup("#addSource_artifactUri_hint").queryText()).isVisible();
+    }
+
+    @Override
     public Optional<DownloadEntry> waitOnResult(Duration timeout) {
         assertLatch(resultReadyLatch, timeout);
         return resultRef.get();

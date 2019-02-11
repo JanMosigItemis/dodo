@@ -42,8 +42,13 @@ public interface AddDownloadSourceDialogUiTestDriver extends DodoTestsJunit5Life
 
     /**
      * Assert that the ok button is disabled.
-     * 
+     *
      * @throws AssertionError If the button is enabled.
      */
     void assertOkBtnDisabled();
+
+    /**
+     * Assert that the hint label for the URI input field is visible.
+     */
+    void assertUriHintLabelVisible();
 }

@@ -15,6 +15,7 @@ import de.itemis.jmo.dodo.tests.testfx.JavaFxAddDownloadSourceDialogUiTestDriver
 
 public class AddDownloadSourceDialogUiTest {
 
+    private static final String INVALID_URI = "-:invalid##/uri";
     private static final Duration DIALOG_CLOSE_TIMEOUT = Duration.ofSeconds(5);
 
     private AddDownloadSourceDialogUiTestDriver dialog;
@@ -70,6 +71,19 @@ public class AddDownloadSourceDialogUiTest {
     public void okBtn_isDisabled_if_artifactUri_empty() {
         dialog.enterArtifactName("artifactName");
         dialog.enterArtifactUri("   ");
+        dialog.assertOkBtnDisabled();
+    }
+
+    @Test
+    public void invalidUri_displays_hintLabel() {
+        dialog.enterArtifactUri(INVALID_URI);
+        dialog.assertUriHintLabelVisible();
+    }
+
+    @Test
+    public void invalidUri_disables_okBtn() {
+        dialog.enterArtifactName("artifactName");
+        dialog.enterArtifactUri(INVALID_URI);
         dialog.assertOkBtnDisabled();
     }
 }
