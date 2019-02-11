@@ -3,6 +3,7 @@ package de.itemis.jmo.dodo;
 import java.net.URI;
 
 import de.itemis.jmo.dodo.model.DownloadEntry;
+import de.itemis.jmo.dodo.model.PropertyBiBinding;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -29,6 +30,7 @@ public class AddDownloadSourceDialog extends Dialog<DownloadEntry> {
         Label uriLabel = new Label("URI: ");
         TextField nameField = new TextField();
         nameField.setId("addSource_artifactName");
+
         TextField uriField = new TextField();
         uriField.setId("addSource_artifactUri");
 
@@ -56,6 +58,8 @@ public class AddDownloadSourceDialog extends Dialog<DownloadEntry> {
             }
             return result;
         });
+
+        okBtn.disableProperty().bind(new PropertyBiBinding(nameField.textProperty(), uriField.textProperty()));
 
         nameField.requestFocus();
     }

@@ -48,4 +48,28 @@ public class AddDownloadSourceDialogUiTest {
         assertThat(resultValue.getArtifactName()).isEqualTo(artifactName);
         assertThat(resultValue.getArtifactUri()).hasToString(artifactUri);
     }
+
+    @Test
+    public void produces_noEntry_on_Cancel() {
+        dialog.enterArtifactName("artifactName");
+        dialog.enterArtifactUri("artifactUri");
+        dialog.clickCancelBtn();
+        Optional<DownloadEntry> result = dialog.waitOnResult(DIALOG_CLOSE_TIMEOUT);
+
+        assertThat(result).isNotPresent();
+    }
+
+    @Test
+    public void okBtn_isDisabled_if_artifactName_empty() {
+        dialog.enterArtifactName("   ");
+        dialog.enterArtifactUri("artifactUri");
+        dialog.assertOkBtnDisabled();
+    }
+
+    @Test
+    public void okBtn_isDisabled_if_artifactUri_empty() {
+        dialog.enterArtifactName("artifactName");
+        dialog.enterArtifactUri("   ");
+        dialog.assertOkBtnDisabled();
+    }
 }

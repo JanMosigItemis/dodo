@@ -1,6 +1,7 @@
 package de.itemis.jmo.dodo.tests.testfx;
 
 import static de.itemis.jmo.dodo.tests.util.FutureHelper.assertLatch;
+import static org.testfx.assertions.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -28,6 +29,9 @@ public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDr
     public void start(Stage stage) throws Exception {
         super.start(stage);
         dialog = new AddDownloadSourceDialog();
+        dialog.setOnCloseRequest(event -> {
+            resultReadyLatch.countDown();
+        });
         dialog.resultProperty().addListener(this);
         dialog.show();
     }
@@ -64,6 +68,11 @@ public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDr
     @Override
     public void clickCancelBtn() {
         clickOn("#addSource_cancel");
+    }
+
+    @Override
+    public void assertOkBtnDisabled() {
+        assertThat(lookup("#addSource_confirm").queryButton()).isDisabled();
     }
 
     @Override

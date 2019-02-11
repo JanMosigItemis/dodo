@@ -39,4 +39,11 @@ public interface AddDownloadSourceDialogUiTestDriver extends DodoTestsJunit5Life
      * @throws TimeoutException in case waiting times out.
      */
     Optional<DownloadEntry> waitOnResult(Duration timeout);
+
+    /**
+     * Assert that the ok button is disabled.
+     * 
+     * @throws AssertionError If the button is enabled.
+     */
+    void assertOkBtnDisabled();
 }
