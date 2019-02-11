@@ -23,6 +23,11 @@ public interface DodoUiTestDriver extends DodoTestsJunit5Lifecycle {
     void download(String artifactName);
 
     /**
+     * Remove an entry via UI.
+     */
+    void delete(String artifactName);
+
+    /**
      * Assert that the UI indicates a successful download of the artifact of the specified name.
      */
     void assertDownloadSuccessIndicated(String artifactName);
@@ -38,5 +43,4 @@ public interface DodoUiTestDriver extends DodoTestsJunit5Lifecycle {
      * @param artifactName - The name of the artifact behind the entry.
      */
     void assertDownloadEntryDisplayed(String artifactName);
-
 }

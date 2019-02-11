@@ -49,6 +49,13 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
     }
 
     @Override
+    public void delete(String artifactName) {
+        String sanitizedArtifactName = sanitize(artifactName);
+        clickOn("#deleteButton_" + sanitizedArtifactName);
+        waitForFxEvents();
+    }
+
+    @Override
     public void assertDownloadSuccessIndicated(String artifactName) {
         assertThat(itemTable()).hasTableCell(true);
     }

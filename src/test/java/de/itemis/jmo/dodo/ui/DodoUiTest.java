@@ -54,6 +54,13 @@ public class DodoUiTest {
     }
 
     @Test
+    public void when_delete_then_entry_is_removed() {
+        dodo.addDownloadSource(ARTIFACT_NAME, URI.create("someUri"));
+        dodo.delete(ARTIFACT_NAME);
+        dodo.assertNoDownloadEntriesDisplayed();
+    }
+
+    @Test
     public void when_downloading_artifact_indicate_success() {
         URI artifactUri = fakeServer.provide(ARTIFACT_NAME);
         dodo.addDownloadSource(ARTIFACT_NAME, artifactUri);

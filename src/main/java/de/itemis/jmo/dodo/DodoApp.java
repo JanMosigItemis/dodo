@@ -1,5 +1,6 @@
 package de.itemis.jmo.dodo;
 
+import de.itemis.jmo.dodo.model.DeleteButtonTableCell;
 import de.itemis.jmo.dodo.model.DownloadButtonTableCell;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.FakeCellValueFactory;
@@ -50,9 +51,16 @@ public class DodoApp extends Application {
             itemTable.refresh();
         }));
 
+        TableColumn<DownloadEntry, Button> deleteBtnCol = new TableColumn<>("Delete");
+        deleteBtnCol.setCellValueFactory(new FakeCellValueFactory<>());
+        deleteBtnCol.setCellFactory(DeleteButtonTableCell.forTableColumn("Delete", entry -> {
+            itemTable.getItems().remove(entry);
+        }));
+
         itemTable.getColumns().add(artifactNameCol);
         itemTable.getColumns().add(isDownloadedCol);
         itemTable.getColumns().add(downloadBtnCol);
+        itemTable.getColumns().add(deleteBtnCol);
         itemTable.setEditable(false);
         itemTable.setId("itemTable");
         itemTable.setItems(items);
@@ -71,7 +79,7 @@ public class DodoApp extends Application {
         mainMenu.getMenus().add(dodoMenu);
 
         VBox root = new VBox(mainMenu, itemTable);
-        Scene mainScene = new Scene(root, 300, 250);
+        Scene mainScene = new Scene(root, 400, 250);
         mainStage.setScene(mainScene);
         mainStage.show();
     }
