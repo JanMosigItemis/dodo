@@ -12,17 +12,23 @@ import java.util.Optional;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.tests.testfx.AddDownloadSourceDialogUiTestDriver;
 import de.itemis.jmo.dodo.tests.testfx.JavaFxAddDownloadSourceDialogUiTestDriver;
+import de.itemis.jmo.dodo.tests.util.FakeStringToDownloadScriptParser;
 
 public class AddDownloadSourceDialogUiTest {
 
-    private static final String INVALID_SCRIPT = "-:invalid##/uri";
+    private static final String INVALID_SCRIPT = "invalidScript";
+    private static final String VALID_SCRIPT = "validScript";
+    private static final String ARTIFACT_NAME = "artifactName";
     private static final Duration DIALOG_CLOSE_TIMEOUT = Duration.ofSeconds(5);
+
+    private FakeStringToDownloadScriptParser fakeDownloadParser;
 
     private AddDownloadSourceDialogUiTestDriver dialog;
 
     @BeforeEach
     public void setUp() {
-        dialog = new JavaFxAddDownloadSourceDialogUiTestDriver();
+        fakeDownloadParser = new FakeStringToDownloadScriptParser(INVALID_SCRIPT);
+        dialog = new JavaFxAddDownloadSourceDialogUiTestDriver(fakeDownloadParser);
         dialog.beforeEach();
     }
 
@@ -36,24 +42,18 @@ public class AddDownloadSourceDialogUiTest {
 
     @Test
     public void produces_newEntry_on_all_correct_data() {
-        String artifactName = "artifactName";
-        String downloadScript = "downloadScript";
-
-        dialog.enterArtifactName(artifactName);
-        dialog.enterDownloadScript(downloadScript);
+        dialog.enterArtifactName(ARTIFACT_NAME);
+        dialog.enterDownloadScript(VALID_SCRIPT);
         dialog.clickOkBtn();
         Optional<DownloadEntry> result = dialog.waitOnResult(DIALOG_CLOSE_TIMEOUT);
 
         assertThat(result).isPresent();
-        DownloadEntry resultValue = result.get();
-        assertThat(resultValue.getArtifactName()).isEqualTo(artifactName);
-        assertThat(resultValue.getDownloadScript()).hasToString(downloadScript);
     }
 
     @Test
     public void produces_noEntry_on_Cancel() {
-        dialog.enterArtifactName("artifactName");
-        dialog.enterDownloadScript("downloadScript");
+        dialog.enterArtifactName(ARTIFACT_NAME);
+        dialog.enterDownloadScript(VALID_SCRIPT);
         dialog.clickCancelBtn();
         Optional<DownloadEntry> result = dialog.waitOnResult(DIALOG_CLOSE_TIMEOUT);
 
@@ -63,14 +63,14 @@ public class AddDownloadSourceDialogUiTest {
     @Test
     public void okBtn_isDisabled_if_artifactName_empty() {
         dialog.enterArtifactName("   ");
-        dialog.enterDownloadScript("downloadScript");
+        dialog.enterDownloadScript(VALID_SCRIPT);
         dialog.assertOkBtnDisabled();
     }
 
     @Test
-    public void okBtn_isDisabled_if_downloadScript_empty() {
-        dialog.enterArtifactName("artifactName");
-        dialog.enterDownloadScript("   ");
+    public void okBtn_isDisabled_if_downloadScript_invalid() {
+        dialog.enterArtifactName(ARTIFACT_NAME);
+        dialog.enterDownloadScript(INVALID_SCRIPT);
         dialog.assertOkBtnDisabled();
     }
 
@@ -78,12 +78,5 @@ public class AddDownloadSourceDialogUiTest {
     public void invalidScript_displays_hintLabel() {
         dialog.enterDownloadScript(INVALID_SCRIPT);
         dialog.assertScriptHintLabelVisible();
-    }
-
-    @Test
-    public void invalidScript_disables_okBtn() {
-        dialog.enterArtifactName("artifactName");
-        dialog.enterDownloadScript(INVALID_SCRIPT);
-        dialog.assertOkBtnDisabled();
     }
 }

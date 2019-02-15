@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import de.itemis.jmo.dodo.AddDownloadSourceDialog;
 import de.itemis.jmo.dodo.model.DownloadEntry;
+import de.itemis.jmo.dodo.model.DownloadScript;
+import de.itemis.jmo.dodo.parsing.StringParser;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Dialog;
@@ -21,14 +23,26 @@ import javafx.stage.Stage;
 public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDriver
         implements AddDownloadSourceDialogUiTestDriver, ChangeListener<DownloadEntry> {
 
+    private final StringParser<DownloadScript> downloadScriptParser;
+
     private Dialog<DownloadEntry> dialog;
     private AtomicReference<Optional<DownloadEntry>> resultRef = new AtomicReference<>(Optional.empty());
     private CountDownLatch resultReadyLatch = new CountDownLatch(1);
 
+    /**
+     * Construct a new instance.
+     *
+     * @param downloadScriptParser - Use this to parse string input to a {@link DownloadScript}
+     *        instance. Could be mocked / fake.
+     */
+    public JavaFxAddDownloadSourceDialogUiTestDriver(StringParser<DownloadScript> downloadScriptParser) {
+        this.downloadScriptParser = downloadScriptParser;
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
         super.start(stage);
-        dialog = new AddDownloadSourceDialog();
+        dialog = new AddDownloadSourceDialog(downloadScriptParser);
         dialog.setOnCloseRequest(event -> {
             resultReadyLatch.countDown();
         });

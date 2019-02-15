@@ -1,8 +1,10 @@
 package de.itemis.jmo.dodo;
 
 import de.itemis.jmo.dodo.model.DownloadEntry;
+import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.model.PropertyBiBinding;
 import de.itemis.jmo.dodo.model.UriValidationBinding;
+import de.itemis.jmo.dodo.parsing.StringParser;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -20,8 +22,11 @@ public class AddDownloadSourceDialog extends Dialog<DownloadEntry> {
 
     /**
      * Construct a new instance and requests focus.
+     *
+     * @param downloadScriptParser - Use this parser to create a valid {@link DownloadScript}
+     *        instance from the data entered data.
      */
-    public AddDownloadSourceDialog() {
+    public AddDownloadSourceDialog(StringParser<DownloadScript> downloadScriptParser) {
         setTitle("Add Source");
         setHeaderText("Please enter the new source's data.");
         setResizable(true);
@@ -65,12 +70,13 @@ public class AddDownloadSourceDialog extends Dialog<DownloadEntry> {
         setResultConverter(clickedBtn -> {
             DownloadEntry result = null;
             if (clickedBtn == okBtnType) {
-                result = new DownloadEntry(nameField.getText(), scriptField.getText());
+                DownloadScript downloadScript = downloadScriptParser.parse(scriptField.getText());
+                result = new DownloadEntry(nameField.getText(), downloadScript);
             }
             return result;
         });
 
-        UriValidationBinding isScriptValid = new UriValidationBinding(scriptField.textProperty());
+        UriValidationBinding isScriptValid = new UriValidationBinding(scriptField.textProperty(), downloadScriptParser);
         scriptHintLabel.visibleProperty().bind(isScriptValid);
         PropertyBiBinding isFormFilled = new PropertyBiBinding(nameField.textProperty(), scriptField.textProperty());
         okBtn.disableProperty().bind(isFormFilled.or(isScriptValid));

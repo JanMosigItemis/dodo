@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
+import java.net.URI;
+
 @RunWith(JUnitPlatform.class)
 public class DownloadEntryTest {
 
-    private static final String DOWNLOAD_SCRIPT = "downloadScript";
+    private static final DownloadScript DOWNLOAD_SCRIPT = new DownloadScript(URI.create("artifactUri"));
     private static final String ARTIFACT_NAME = "artifactName";
 
     private DownloadEntry underTest;

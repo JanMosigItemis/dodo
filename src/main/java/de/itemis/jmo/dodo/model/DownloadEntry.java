@@ -9,7 +9,7 @@ import static java.util.Objects.requireNonNull;
 public class DownloadEntry {
 
     private final String artifactName;
-    private final String downloadScript;
+    private final DownloadScript downloadScript;
 
     private boolean downloadFinished = false;
 
@@ -19,7 +19,7 @@ public class DownloadEntry {
      * @param artifactName - Name of the entry.
      * @param downloadScript - How to access the artifact.
      */
-    public DownloadEntry(String artifactName, String downloadScript) {
+    public DownloadEntry(String artifactName, DownloadScript downloadScript) {
         this.artifactName = requireNonNull(artifactName, "artifactName");
         this.downloadScript = requireNonNull(downloadScript, "downloadScript");
     }
@@ -34,7 +34,7 @@ public class DownloadEntry {
     /**
      * @return the script with which to access the artifact.
      */
-    public String getDownloadScript() {
+    public DownloadScript getDownloadScript() {
         return downloadScript;
     }
 

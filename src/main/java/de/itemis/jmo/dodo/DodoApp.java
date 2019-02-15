@@ -1,8 +1,11 @@
 package de.itemis.jmo.dodo;
 
+import java.net.URI;
+
 import de.itemis.jmo.dodo.model.DeleteButtonTableCell;
 import de.itemis.jmo.dodo.model.DownloadButtonTableCell;
 import de.itemis.jmo.dodo.model.DownloadEntry;
+import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.model.FakeCellValueFactory;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -74,7 +77,8 @@ public class DodoApp extends Application {
         dodoMenu.setId("dodoMenu");
         MenuItem addSourceMenuItem = new MenuItem("Add Source..");
         addSourceMenuItem.setId("addSource");
-        addSourceMenuItem.setOnAction(event -> new AddDownloadSourceDialog().showAndWait().map(newEntry -> items.add(newEntry)));
+        addSourceMenuItem.setOnAction(
+            event -> new AddDownloadSourceDialog(script -> new DownloadScript(URI.create("fakeUri"))).showAndWait().map(newEntry -> items.add(newEntry)));
         dodoMenu.getItems().add(addSourceMenuItem);
         mainMenu.getMenus().add(dodoMenu);
 
