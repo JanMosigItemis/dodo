@@ -3,15 +3,13 @@ package de.itemis.jmo.dodo.model;
 
 import static java.util.Objects.requireNonNull;
 
-import java.net.URI;
-
 /**
  * An entry of the table of downloadable content.
  */
 public class DownloadEntry {
 
     private final String artifactName;
-    private final URI artifactUri;
+    private final String downloadScript;
 
     private boolean downloadFinished = false;
 
@@ -19,11 +17,11 @@ public class DownloadEntry {
      * Create a new instance.
      *
      * @param artifactName - Name of the entry.
-     * @param artifactUri - Where to access the artifact.
+     * @param downloadScript - How to access the artifact.
      */
-    public DownloadEntry(String artifactName, URI artifactUri) {
+    public DownloadEntry(String artifactName, String downloadScript) {
         this.artifactName = requireNonNull(artifactName, "artifactName");
-        this.artifactUri = requireNonNull(artifactUri, "artifactUri");
+        this.downloadScript = requireNonNull(downloadScript, "downloadScript");
     }
 
     /**
@@ -34,10 +32,10 @@ public class DownloadEntry {
     }
 
     /**
-     * @return the URI under which to access the artifact.
+     * @return the script with which to access the artifact.
      */
-    public URI getArtifactUri() {
-        return artifactUri;
+    public String getDownloadScript() {
+        return downloadScript;
     }
 
     /**

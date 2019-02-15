@@ -15,7 +15,7 @@ import de.itemis.jmo.dodo.tests.testfx.JavaFxAddDownloadSourceDialogUiTestDriver
 
 public class AddDownloadSourceDialogUiTest {
 
-    private static final String INVALID_URI = "-:invalid##/uri";
+    private static final String INVALID_SCRIPT = "-:invalid##/uri";
     private static final Duration DIALOG_CLOSE_TIMEOUT = Duration.ofSeconds(5);
 
     private AddDownloadSourceDialogUiTestDriver dialog;
@@ -37,23 +37,23 @@ public class AddDownloadSourceDialogUiTest {
     @Test
     public void produces_newEntry_on_all_correct_data() {
         String artifactName = "artifactName";
-        String artifactUri = "artifactUri";
+        String downloadScript = "downloadScript";
 
         dialog.enterArtifactName(artifactName);
-        dialog.enterArtifactUri(artifactUri);
+        dialog.enterDownloadScript(downloadScript);
         dialog.clickOkBtn();
         Optional<DownloadEntry> result = dialog.waitOnResult(DIALOG_CLOSE_TIMEOUT);
 
         assertThat(result).isPresent();
         DownloadEntry resultValue = result.get();
         assertThat(resultValue.getArtifactName()).isEqualTo(artifactName);
-        assertThat(resultValue.getArtifactUri()).hasToString(artifactUri);
+        assertThat(resultValue.getDownloadScript()).hasToString(downloadScript);
     }
 
     @Test
     public void produces_noEntry_on_Cancel() {
         dialog.enterArtifactName("artifactName");
-        dialog.enterArtifactUri("artifactUri");
+        dialog.enterDownloadScript("downloadScript");
         dialog.clickCancelBtn();
         Optional<DownloadEntry> result = dialog.waitOnResult(DIALOG_CLOSE_TIMEOUT);
 
@@ -63,27 +63,27 @@ public class AddDownloadSourceDialogUiTest {
     @Test
     public void okBtn_isDisabled_if_artifactName_empty() {
         dialog.enterArtifactName("   ");
-        dialog.enterArtifactUri("artifactUri");
+        dialog.enterDownloadScript("downloadScript");
         dialog.assertOkBtnDisabled();
     }
 
     @Test
-    public void okBtn_isDisabled_if_artifactUri_empty() {
+    public void okBtn_isDisabled_if_downloadScript_empty() {
         dialog.enterArtifactName("artifactName");
-        dialog.enterArtifactUri("   ");
+        dialog.enterDownloadScript("   ");
         dialog.assertOkBtnDisabled();
     }
 
     @Test
-    public void invalidUri_displays_hintLabel() {
-        dialog.enterArtifactUri(INVALID_URI);
-        dialog.assertUriHintLabelVisible();
+    public void invalidScript_displays_hintLabel() {
+        dialog.enterDownloadScript(INVALID_SCRIPT);
+        dialog.assertScriptHintLabelVisible();
     }
 
     @Test
-    public void invalidUri_disables_okBtn() {
+    public void invalidScript_disables_okBtn() {
         dialog.enterArtifactName("artifactName");
-        dialog.enterArtifactUri(INVALID_URI);
+        dialog.enterDownloadScript(INVALID_SCRIPT);
         dialog.assertOkBtnDisabled();
     }
 }

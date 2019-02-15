@@ -56,8 +56,8 @@ public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDr
     }
 
     @Override
-    public void enterArtifactUri(String artifactUri) {
-        lookup("#addSource_artifactUri").queryTextInputControl().setText(artifactUri.toString());
+    public void enterDownloadScript(String downloadScript) {
+        lookup("#addSource_downloadScript").queryTextInputControl().setText(downloadScript);
     }
 
     @Override
@@ -76,8 +76,8 @@ public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDr
     }
 
     @Override
-    public void assertUriHintLabelVisible() {
-        assertThat(lookup("#addSource_artifactUri_hint").queryText()).isVisible();
+    public void assertScriptHintLabelVisible() {
+        assertThat(lookup("#addSource_downloadScript_hint").queryText()).isVisible();
     }
 
     @Override

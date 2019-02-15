@@ -8,28 +8,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
-import java.net.URI;
-
 @RunWith(JUnitPlatform.class)
 public class DownloadEntryTest {
 
-    private static final URI ARTIFACT_URI = URI.create("testUri");
+    private static final String DOWNLOAD_SCRIPT = "downloadScript";
     private static final String ARTIFACT_NAME = "artifactName";
 
     private DownloadEntry underTest;
 
     @BeforeEach
     public void setUp() {
-        underTest = new DownloadEntry(ARTIFACT_NAME, ARTIFACT_URI);
+        underTest = new DownloadEntry(ARTIFACT_NAME, DOWNLOAD_SCRIPT);
     }
 
     @Test
     public void constructorDoesNotAcceptNullName() {
-        assertThrows(NullPointerException.class, () -> new DownloadEntry(null, ARTIFACT_URI));
+        assertThrows(NullPointerException.class, () -> new DownloadEntry(null, DOWNLOAD_SCRIPT));
     }
 
     @Test
-    public void constructorDoesNotAcceptNullUri() {
+    public void constructorDoesNotAcceptNullScript() {
         assertThrows(NullPointerException.class, () -> new DownloadEntry(ARTIFACT_NAME, null));
     }
 
@@ -39,8 +37,8 @@ public class DownloadEntryTest {
     }
 
     @Test
-    public void getArtifactUriReturnsUri() {
-        assertThat(underTest.getArtifactUri()).isEqualTo(ARTIFACT_URI);
+    public void getDownloadScriptReturnsScript() {
+        assertThat(underTest.getDownloadScript()).isEqualTo(DOWNLOAD_SCRIPT);
     }
 
     @Test

@@ -49,13 +49,13 @@ public class DodoUiTest {
 
     @Test
     public void when_downloadSource_hasBeenAdded_itGetsDisplayed() {
-        dodo.addDownloadSource(ARTIFACT_NAME, URI.create("someUri"));
+        dodo.addDownloadSource(ARTIFACT_NAME, "someScript");
         dodo.assertDownloadEntryDisplayed(ARTIFACT_NAME);
     }
 
     @Test
     public void when_delete_then_entry_is_removed() {
-        dodo.addDownloadSource(ARTIFACT_NAME, URI.create("someUri"));
+        dodo.addDownloadSource(ARTIFACT_NAME, "someScript");
         dodo.delete(ARTIFACT_NAME);
         dodo.assertNoDownloadEntriesDisplayed();
     }
@@ -63,7 +63,7 @@ public class DodoUiTest {
     @Test
     public void when_downloading_artifact_indicate_success() {
         URI artifactUri = fakeServer.provide(ARTIFACT_NAME);
-        dodo.addDownloadSource(ARTIFACT_NAME, artifactUri);
+        dodo.addDownloadSource(ARTIFACT_NAME, artifactUri.toString());
         dodo.download(ARTIFACT_NAME);
         dodo.assertDownloadSuccessIndicated(ARTIFACT_NAME);
     }

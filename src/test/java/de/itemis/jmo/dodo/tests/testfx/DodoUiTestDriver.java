@@ -1,7 +1,5 @@
 package de.itemis.jmo.dodo.tests.testfx;
 
-import java.net.URI;
-
 /**
  * A "driver" for UI tests of the whole Dodo app. It decouples the actual test code ("what to test")
  * from the knowledge on how to actually perform those tests. This helps keeping the tests compiling
@@ -13,9 +11,9 @@ public interface DodoUiTestDriver extends DodoTestsJunit5Lifecycle {
      * When this method returns, Dodo knows about another download source.
      *
      * @param artifactName - Name of the artifact provided by source.
-     * @param artifactUri - Download uri of the artifact.
+     * @param downloadScript - Download script of the artifact.
      */
-    void addDownloadSource(String artifactName, URI artifactUri);
+    void addDownloadSource(String artifactName, String downloadScript);
 
     /**
      * Initiate a download via UI.

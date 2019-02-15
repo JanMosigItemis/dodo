@@ -1,7 +1,5 @@
 package de.itemis.jmo.dodo;
 
-import java.net.URI;
-
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.PropertyBiBinding;
 import de.itemis.jmo.dodo.model.UriValidationBinding;
@@ -29,29 +27,29 @@ public class AddDownloadSourceDialog extends Dialog<DownloadEntry> {
         setResizable(true);
 
         Label nameLabel = new Label("Name: ");
-        Label uriLabel = new Label("URI: ");
+        Label scriptLabel = new Label("Script: ");
         TextField nameField = new TextField();
         nameField.setId("addSource_artifactName");
 
-        TextField uriField = new TextField();
-        uriField.setId("addSource_artifactUri");
+        TextField scriptField = new TextField();
+        scriptField.setId("addSource_downloadScript");
 
         Label blindLabel = new Label("blind");
         blindLabel.setVisible(false);
         blindLabel.setId("addSource_blindLabel");
 
-        Text uriHintLabel = new Text("Invalid URI");
-        uriHintLabel.setVisible(false);
-        uriHintLabel.setStyle("-fx-font-size: 10; -fx-fill: red;");
-        uriHintLabel.setId("addSource_artifactUri_hint");
+        Text scriptHintLabel = new Text("Invalid Script");
+        scriptHintLabel.setVisible(false);
+        scriptHintLabel.setStyle("-fx-font-size: 10; -fx-fill: red;");
+        scriptHintLabel.setId("addSource_downloadScript_hint");
 
         GridPane grid = new GridPane();
         grid.add(nameLabel, 1, 1);
         grid.add(nameField, 2, 1);
-        grid.add(uriLabel, 1, 2);
-        grid.add(uriField, 2, 2);
+        grid.add(scriptLabel, 1, 2);
+        grid.add(scriptField, 2, 2);
         grid.add(blindLabel, 1, 3);
-        grid.add(uriHintLabel, 2, 3);
+        grid.add(scriptHintLabel, 2, 3);
         getDialogPane().setContent(grid);
 
         ButtonType cancelBtnType = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
@@ -67,15 +65,15 @@ public class AddDownloadSourceDialog extends Dialog<DownloadEntry> {
         setResultConverter(clickedBtn -> {
             DownloadEntry result = null;
             if (clickedBtn == okBtnType) {
-                result = new DownloadEntry(nameField.getText(), URI.create(uriField.getText()));
+                result = new DownloadEntry(nameField.getText(), scriptField.getText());
             }
             return result;
         });
 
-        UriValidationBinding isUriValid = new UriValidationBinding(uriField.textProperty());
-        uriHintLabel.visibleProperty().bind(isUriValid);
-        PropertyBiBinding isFormFilled = new PropertyBiBinding(nameField.textProperty(), uriField.textProperty());
-        okBtn.disableProperty().bind(isFormFilled.or(isUriValid));
+        UriValidationBinding isScriptValid = new UriValidationBinding(scriptField.textProperty());
+        scriptHintLabel.visibleProperty().bind(isScriptValid);
+        PropertyBiBinding isFormFilled = new PropertyBiBinding(nameField.textProperty(), scriptField.textProperty());
+        okBtn.disableProperty().bind(isFormFilled.or(isScriptValid));
 
         nameField.requestFocus();
     }

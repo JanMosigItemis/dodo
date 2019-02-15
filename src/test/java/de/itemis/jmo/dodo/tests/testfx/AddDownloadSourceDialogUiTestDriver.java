@@ -19,9 +19,9 @@ public interface AddDownloadSourceDialogUiTestDriver extends DodoTestsJunit5Life
     void enterArtifactName(String artifactName);
 
     /**
-     * Enters the provided {@code artifactUri} into the appropriate input field.
+     * Enters the provided {@code downloadScript} into the appropriate input field.
      */
-    void enterArtifactUri(String artifactUri);
+    void enterDownloadScript(String downloadScript);
 
     /**
      * Simulate a mouse click on the dialog's OK button.
@@ -48,7 +48,7 @@ public interface AddDownloadSourceDialogUiTestDriver extends DodoTestsJunit5Life
     void assertOkBtnDisabled();
 
     /**
-     * Assert that the hint label for the URI input field is visible.
+     * Assert that the hint label for the download script text area is visible.
      */
-    void assertUriHintLabelVisible();
+    void assertScriptHintLabelVisible();
 }

@@ -7,8 +7,6 @@ import static de.itemis.jmo.dodo.util.NodeIdSanitizer.sanitize;
 import static org.testfx.assertions.api.Assertions.assertThat;
 import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
-import java.net.URI;
-
 import de.itemis.jmo.dodo.DodoApp;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
@@ -32,11 +30,11 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
     }
 
     @Override
-    public void addDownloadSource(String artifactName, URI artifactUri) {
+    public void addDownloadSource(String artifactName, String downloadScript) {
         clickOn("#dodoMenu");
         clickOn("#addSource");
         lookup("#addSource_artifactName").queryTextInputControl().setText(artifactName);
-        lookup("#addSource_artifactUri").queryTextInputControl().setText(artifactUri.toString());
+        lookup("#addSource_downloadScript").queryTextInputControl().setText(downloadScript);
         clickOn("#addSource_confirm");
         waitForFxEvents();
     }
