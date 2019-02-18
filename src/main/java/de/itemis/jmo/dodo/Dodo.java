@@ -15,6 +15,7 @@ import javafx.application.Application;
  *      for details.
  */
 public class Dodo {
+
     public static void main(String[] args) {
         Application.launch(DodoApp.class, args);
     }

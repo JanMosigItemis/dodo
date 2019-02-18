@@ -9,9 +9,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import de.itemis.jmo.dodo.AddDownloadSourceDialog;
+import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.parsing.StringParser;
+import de.itemis.jmo.dodo.tests.util.FakeDownloader;
+import de.itemis.jmo.dodo.tests.util.FakeStringToDownloadScriptParser;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Dialog;
@@ -23,26 +26,23 @@ import javafx.stage.Stage;
 public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDriver
         implements AddDownloadSourceDialogUiTestDriver, ChangeListener<DownloadEntry> {
 
-    private final StringParser<DownloadScript> downloadScriptParser;
+    private static final String INVALID_SCRIPT = "invalidScript";
+
+    private StringParser<DownloadScript> parser;
+    private Persistence persistence;
+    private AtomicReference<Optional<DownloadEntry>> resultRef;
+    private CountDownLatch resultReadyLatch;
 
     private Dialog<DownloadEntry> dialog;
-    private AtomicReference<Optional<DownloadEntry>> resultRef = new AtomicReference<>(Optional.empty());
-    private CountDownLatch resultReadyLatch = new CountDownLatch(1);
-
-    /**
-     * Construct a new instance.
-     *
-     * @param downloadScriptParser - Use this to parse string input to a {@link DownloadScript}
-     *        instance. Could be mocked / fake.
-     */
-    public JavaFxAddDownloadSourceDialogUiTestDriver(StringParser<DownloadScript> downloadScriptParser) {
-        this.downloadScriptParser = downloadScriptParser;
-    }
 
     @Override
     public void start(Stage stage) throws Exception {
         super.start(stage);
-        dialog = new AddDownloadSourceDialog(downloadScriptParser);
+        parser = new FakeStringToDownloadScriptParser(INVALID_SCRIPT, new FakeDownloader());
+        resultRef = new AtomicReference<>(Optional.empty());
+        resultReadyLatch = new CountDownLatch(1);
+
+        dialog = new AddDownloadSourceDialog(parser, persistence);
         dialog.setOnCloseRequest(event -> {
             resultReadyLatch.countDown();
         });
@@ -55,6 +55,10 @@ public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDr
         if (dialog != null && dialog.isShowing()) {
             clickCancelBtn();
         }
+
+        resultReadyLatch = null;
+        resultRef = null;
+        parser = null;
         super.stop();
     }
 
@@ -72,6 +76,11 @@ public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDr
     @Override
     public void enterDownloadScript(String downloadScript) {
         lookup("#addSource_downloadScript").queryTextInputControl().setText(downloadScript);
+    }
+
+    @Override
+    public void enterInvalidDownloadScript() {
+        enterDownloadScript(INVALID_SCRIPT);
     }
 
     @Override

@@ -1,7 +1,10 @@
 package de.itemis.jmo.dodo.model;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Objects;
+
+import de.itemis.jmo.dodo.io.Downloader;
 
 /**
  * <p>
@@ -14,14 +17,26 @@ import java.util.Objects;
 public class DownloadScript {
 
     private final URI artifactUri;
+    private final Downloader downloader;
 
     /**
      * Create a new instance.
      *
      * @param artifactUri
      */
-    public DownloadScript(URI artifactUri) {
-        this.artifactUri = Objects.requireNonNull(artifactUri, "artifactUri");
+    public DownloadScript(URI artifactUri, Downloader downloader) {
+        this.artifactUri = artifactUri;
+        this.downloader = downloader;
+    }
+
+    /**
+     * "Execute" the script and create an {@link InputStream} that can be used to read downloadable
+     * bytes of the artifact.
+     *
+     * @return - A new instance of {@link InputStream}.
+     */
+    public InputStream createDownload() {
+        return downloader.openStream(artifactUri);
     }
 
     @Override

@@ -12,23 +12,18 @@ import java.util.Optional;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.tests.testfx.AddDownloadSourceDialogUiTestDriver;
 import de.itemis.jmo.dodo.tests.testfx.JavaFxAddDownloadSourceDialogUiTestDriver;
-import de.itemis.jmo.dodo.tests.util.FakeStringToDownloadScriptParser;
 
 public class AddDownloadSourceDialogUiTest {
 
-    private static final String INVALID_SCRIPT = "invalidScript";
     private static final String VALID_SCRIPT = "validScript";
     private static final String ARTIFACT_NAME = "artifactName";
     private static final Duration DIALOG_CLOSE_TIMEOUT = Duration.ofSeconds(5);
-
-    private FakeStringToDownloadScriptParser fakeDownloadParser;
 
     private AddDownloadSourceDialogUiTestDriver dialog;
 
     @BeforeEach
     public void setUp() {
-        fakeDownloadParser = new FakeStringToDownloadScriptParser(INVALID_SCRIPT);
-        dialog = new JavaFxAddDownloadSourceDialogUiTestDriver(fakeDownloadParser);
+        dialog = new JavaFxAddDownloadSourceDialogUiTestDriver();
         dialog.beforeEach();
     }
 
@@ -70,13 +65,13 @@ public class AddDownloadSourceDialogUiTest {
     @Test
     public void okBtn_isDisabled_if_downloadScript_invalid() {
         dialog.enterArtifactName(ARTIFACT_NAME);
-        dialog.enterDownloadScript(INVALID_SCRIPT);
+        dialog.enterInvalidDownloadScript();
         dialog.assertOkBtnDisabled();
     }
 
     @Test
     public void invalidScript_displays_hintLabel() {
-        dialog.enterDownloadScript(INVALID_SCRIPT);
+        dialog.enterInvalidDownloadScript();
         dialog.assertScriptHintLabelVisible();
     }
 }

@@ -6,6 +6,8 @@ import com.google.common.base.Throwables;
 
 import org.junit.Assert;
 
+import de.itemis.jmo.dodo.util.InstantiationNotAllowedException;
+
 /**
  * <p>
  * Some convenience methods that help with writing short and concise test code.
@@ -14,7 +16,7 @@ import org.junit.Assert;
 public final class TestHelper {
 
     private TestHelper() {
-        throw new UnsupportedOperationException("Instantiation not supported.");
+        throw new InstantiationNotAllowedException();
     }
 
     /**
@@ -32,7 +34,14 @@ public final class TestHelper {
      * fails. In those cases, a warning will be printed to std.err instead.
      */
     public static void printWarning(String message, Throwable cause) {
-        System.err.println("WARN - " + message + ": " + cause.getClass().getSimpleName() + ": " + extractCauseMessage(cause));
+        printWarning("WARN - " + message + ": " + cause.getClass().getSimpleName() + ": " + extractCauseMessage(cause));
+    }
+
+    /**
+     * Print a warning with a default prefix to {@code stderr}.
+     */
+    public static void printWarning(String message) {
+        System.err.println("WARN - " + message);
     }
 
     private static String attachExceptionInformation(String prefix, Throwable cause) {

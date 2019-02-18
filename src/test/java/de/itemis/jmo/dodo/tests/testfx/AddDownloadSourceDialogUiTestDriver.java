@@ -24,6 +24,11 @@ public interface AddDownloadSourceDialogUiTestDriver extends DodoTestsJunit5Life
     void enterDownloadScript(String downloadScript);
 
     /**
+     * Enter a download script that cannot be parsed successfully.
+     */
+    void enterInvalidDownloadScript();
+
+    /**
      * Simulate a mouse click on the dialog's OK button.
      */
     void clickOkBtn();

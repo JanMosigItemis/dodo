@@ -11,12 +11,13 @@ public interface DodoUiTestDriver extends DodoTestsJunit5Lifecycle {
      * When this method returns, Dodo knows about another download source.
      *
      * @param artifactName - Name of the artifact provided by source.
-     * @param downloadScript - Download script of the artifact.
      */
-    void addDownloadSource(String artifactName, String downloadScript);
+    void addDownloadSource(String artifactName);
 
     /**
      * Initiate a download via UI.
+     *
+     * @param artifactName - Download the artifact known under this name.
      */
     void download(String artifactName);
 
@@ -41,4 +42,11 @@ public interface DodoUiTestDriver extends DodoTestsJunit5Lifecycle {
      * @param artifactName - The name of the artifact behind the entry.
      */
     void assertDownloadEntryDisplayed(String artifactName);
+
+    /**
+     * Assert that the downloaded artifact has been successfully stored into the correct place.
+     *
+     * @param artifactName - Identifier of the downloaded artifact.
+     */
+    void assertDownloadStored(String artifactName);
 }

@@ -1,12 +1,19 @@
 package de.itemis.jmo.dodo;
 
-import java.net.URI;
+import java.nio.file.Path;
+import java.util.Optional;
 
+import de.itemis.jmo.dodo.io.DodoDownloader;
+import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.model.DeleteButtonTableCell;
+import de.itemis.jmo.dodo.model.DodoPersistence;
 import de.itemis.jmo.dodo.model.DownloadButtonTableCell;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.model.FakeCellValueFactory;
+import de.itemis.jmo.dodo.parsing.JsonScriptParser;
+import de.itemis.jmo.dodo.parsing.StringParser;
+import de.itemis.jmo.dodo.util.NativeOsDialogs;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,6 +36,32 @@ public class DodoApp extends Application {
 
     private final TableView<DownloadEntry> itemTable = new TableView<DownloadEntry>();
     private final ObservableList<DownloadEntry> items = FXCollections.observableArrayList();
+    private final DodoSystemDialogs systemDialogs;
+    private final StringParser<DownloadScript> scriptParser;
+    private final Persistence persistence;
+
+    /**
+     * Constructor for usage via {@link Application#launch(String...)} only.
+     */
+    public DodoApp() {
+        systemDialogs = new NativeOsDialogs();
+        scriptParser = new JsonScriptParser(new DodoDownloader());
+        persistence = new DodoPersistence();
+    }
+
+    /**
+     * Create a new instance.
+     *
+     * @param systemDialogs - Use this instance to show system dialogs, e. g. FileChooser.
+     * @param scriptParser - Use this parser to parse user input into {@link DownloadScript}
+     *        instances.
+     * @param persistence - Use this to store and load data.
+     */
+    public DodoApp(DodoSystemDialogs systemDialogs, StringParser<DownloadScript> scriptParser, Persistence persistence) {
+        this.systemDialogs = systemDialogs;
+        this.scriptParser = scriptParser;
+        this.persistence = persistence;
+    }
 
     /**
      * We are not going to use the {@code primaryStage} here, because it may have already got its
@@ -47,10 +80,15 @@ public class DodoApp extends Application {
         isDownloadedCol.setCellValueFactory(
             new PropertyValueFactory<DownloadEntry, Boolean>("downloadFinished"));
 
+        Stage mainStage = new Stage();
+        mainStage.setTitle("Dodo");
+        mainStage.initStyle(StageStyle.DECORATED);
+
         TableColumn<DownloadEntry, Button> downloadBtnCol = new TableColumn<>("Download");
         downloadBtnCol.setCellValueFactory(new FakeCellValueFactory<>());
         downloadBtnCol.setCellFactory(DownloadButtonTableCell.forTableColumn("Download", entry -> {
-            entry.download();
+            Optional<Path> targetPath = systemDialogs.showSaveDialog(mainStage);
+            entry.download(targetPath.get());
             itemTable.refresh();
         }));
 
@@ -68,17 +106,13 @@ public class DodoApp extends Application {
         itemTable.setId("itemTable");
         itemTable.setItems(items);
 
-        Stage mainStage = new Stage();
-        mainStage.setTitle("Dodo");
-        mainStage.initStyle(StageStyle.DECORATED);
-
         MenuBar mainMenu = new MenuBar();
         Menu dodoMenu = new Menu("Dodo");
         dodoMenu.setId("dodoMenu");
         MenuItem addSourceMenuItem = new MenuItem("Add Source..");
         addSourceMenuItem.setId("addSource");
         addSourceMenuItem.setOnAction(
-            event -> new AddDownloadSourceDialog(script -> new DownloadScript(URI.create("fakeUri"))).showAndWait().map(newEntry -> items.add(newEntry)));
+            event -> new AddDownloadSourceDialog(script -> scriptParser.parse(script), persistence).showAndWait().map(newEntry -> items.add(newEntry)));
         dodoMenu.getItems().add(addSourceMenuItem);
         mainMenu.getMenus().add(dodoMenu);
 

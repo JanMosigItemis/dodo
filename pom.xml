@@ -31,8 +31,8 @@
         <mockito.version>2.23.4</mockito.version>
         <hamcrest.version>2.1</hamcrest.version>
         <spotbugs.version>3.1.10</spotbugs.version>
-        <junit.version>5.3.2</junit.version>
-        <junit.platform.version>1.3.2</junit.platform.version>
+        <junit.version>5.4.0</junit.version>
+        <junit.platform.version>1.4.0</junit.platform.version>
         <jacoco.plugin.version>0.8.2</jacoco.plugin.version>
         <git-commit-id-plugin.version>2.2.6</git-commit-id-plugin.version>
         <testfx.version>4.0.15-alpha</testfx.version>
@@ -43,6 +43,8 @@
         <openjfx.version>11.0.2</openjfx.version>
         <logback.version>1.3.0-alpha4</logback.version>
         <equalsverifier.version>3.1.4</equalsverifier.version>
+        <simple.json.version>1.1</simple.json.version>
+
     </properties>
 
     <licenses>
@@ -81,6 +83,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+            <dependency>
+                <groupId>com.googlecode.json-simple</groupId>
+                <artifactId>json-simple</artifactId>
+                <version>${simple.json.version}</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -266,8 +274,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -319,10 +335,6 @@
                 JSR-305 -->
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
         </dependency>
         <!-- Test Dependencies -->
         <dependency>
@@ -637,7 +649,13 @@
                                     <shadedClassifierName>${current.os}</shadedClassifierName>
                                     <artifactSet>
                                         <includes>
+                                            <!-- Due to the kind of "exclusion" 
+                                                of non matching artifacts, you need to specify all dependencies here that 
+                                                you want to appear in your local build. This does not affect CI build. -->
                                             <include>org.openjfx:*:*:${current.os}:*</include>
+                                            <include>com.googlecode.json-simple:json-simple</include>
+                                            <include>com.google.guava:guava</include>
+                                            <include>ch.qos.logback:logback-classic</include>
                                         </includes>
                                     </artifactSet>
                                 </configuration>

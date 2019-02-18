@@ -46,7 +46,7 @@ public final class FakeServer {
             fail("Could not write artifact file.", e);
         }
 
-        return httpServerBaseUri.resolve(artifactName);
+        return httpServerBaseUri.resolve("/" + artifactName);
     }
 
     /**
@@ -102,4 +102,8 @@ public final class FakeServer {
         }
     }
 
+    public long getSize(String artifactName) {
+        provide(artifactName);
+        return artifact.get(artifactName).length;
+    }
 }

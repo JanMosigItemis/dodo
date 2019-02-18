@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import de.itemis.jmo.dodo.parsing.StringParser;
+import de.itemis.jmo.dodo.tests.util.FakeDownloader;
 import de.itemis.jmo.dodo.tests.util.FakeStringToDownloadScriptParser;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -16,7 +16,7 @@ public class UriValidationBindingTest {
     private static final String INVALID_VALUE = "invalidValue";
 
     private StringProperty prop;
-    private StringParser<?> parser = new FakeStringToDownloadScriptParser(INVALID_VALUE);
+    private FakeStringToDownloadScriptParser parser = new FakeStringToDownloadScriptParser(INVALID_VALUE, new FakeDownloader());
 
     private UriValidationBinding underTest;
 

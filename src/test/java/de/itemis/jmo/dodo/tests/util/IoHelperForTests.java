@@ -1,6 +1,7 @@
 package de.itemis.jmo.dodo.tests.util;
 
 import static de.itemis.jmo.dodo.tests.util.TestHelper.fail;
+import static de.itemis.jmo.dodo.tests.util.TestHelper.printWarning;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
@@ -13,6 +14,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
+import de.itemis.jmo.dodo.util.InstantiationNotAllowedException;
+
 /**
  * <p>
  * General I/O related convenience methods that make test implementation easier.
@@ -24,7 +27,7 @@ import java.util.Objects;
 public final class IoHelperForTests {
 
     private IoHelperForTests() {
-        throw new UnsupportedOperationException("Instantiation is not supported");
+        throw new InstantiationNotAllowedException();
     }
 
     /**
@@ -80,9 +83,12 @@ public final class IoHelperForTests {
      * <p>
      * Ignores non existing {@code path}s.
      * </p>
-     * 
+     * <p>
+     * Prints a warning to {@code stderr} in case deletion was not successful. This is thought to
+     * help test cleanup methods to continue their work and not fail any passed tests.
+     * </p>
+     *
      * @param path - Delete the file this path points to.
-     * @throws AssertionException In case {@code path} exists and deleting it ran into a problem.
      */
     public static void deleteRecursively(Path path) {
         if (Files.exists(path)) {
@@ -101,7 +107,7 @@ public final class IoHelperForTests {
                     }
                 });
             } catch (IOException e) {
-                fail("Could not delete '" + path.toString() + "'.", e);
+                printWarning("Could not delete '" + path.toString() + "'.", e);
             }
         }
     }

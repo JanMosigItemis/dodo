@@ -1,5 +1,6 @@
 package de.itemis.jmo.dodo.tests.util;
 
+import static de.itemis.jmo.dodo.tests.util.TestHelper.printWarning;
 import static de.itemis.jmo.dodo.util.Sneaky.throwThat;
 import static org.junit.Assert.assertTrue;
 
@@ -7,9 +8,12 @@ import java.time.Duration;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import de.itemis.jmo.dodo.util.InstantiationNotAllowedException;
 
 /**
  * Static helper class with convenience methods that help keeping test code clean of {@link Future}
@@ -18,7 +22,28 @@ import java.util.concurrent.TimeoutException;
 public final class FutureHelper {
 
     private FutureHelper() {
-        throw new UnsupportedOperationException("Instantiation not permitted.");
+        throw new InstantiationNotAllowedException();
+    }
+
+    /**
+     * Shutdown the provided {@code executor} and wait some seconds for running tasks to be
+     * interrupted. prints a warning if waiting is interrupted. Prints a warning if the executor's
+     * tasks have not been shut down in time.
+     *
+     * @param executor - Shutdown this {@link ExecutorService}.
+     */
+    public static void kill(ExecutorService executor) {
+        executor.shutdownNow();
+        boolean notTerminated = false;
+        try {
+            notTerminated = !executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            printWarning("Got interrupted while waiting on executor to shut down.", e);
+        }
+
+        if (notTerminated) {
+            printWarning("Possible resource leak. Executor did not shut down in time.");
+        }
     }
 
     /**

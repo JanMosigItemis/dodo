@@ -1,5 +1,6 @@
 package de.itemis.jmo.dodo;
 
+import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.model.PropertyBiBinding;
@@ -25,8 +26,9 @@ public class AddDownloadSourceDialog extends Dialog<DownloadEntry> {
      *
      * @param downloadScriptParser - Use this parser to create a valid {@link DownloadScript}
      *        instance from the data entered data.
+     * @param persistence - Use this to perform load and store operations on data.
      */
-    public AddDownloadSourceDialog(StringParser<DownloadScript> downloadScriptParser) {
+    public AddDownloadSourceDialog(StringParser<DownloadScript> downloadScriptParser, Persistence persistence) {
         setTitle("Add Source");
         setHeaderText("Please enter the new source's data.");
         setResizable(true);
@@ -71,7 +73,7 @@ public class AddDownloadSourceDialog extends Dialog<DownloadEntry> {
             DownloadEntry result = null;
             if (clickedBtn == okBtnType) {
                 DownloadScript downloadScript = downloadScriptParser.parse(scriptField.getText());
-                result = new DownloadEntry(nameField.getText(), downloadScript);
+                result = new DownloadEntry(nameField.getText(), downloadScript, persistence);
             }
             return result;
         });

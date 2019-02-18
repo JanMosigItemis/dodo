@@ -1,16 +1,17 @@
 package de.itemis.jmo.dodo.model;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
+import de.itemis.jmo.dodo.tests.util.FakeDownloader;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class DownloadScriptTest {
 
     private static final URI ARTIFACT_URI = URI.create("artifactUri");
+
+    private FakeDownloader fakeDownloader;
 
     // Will be used later on
     @SuppressWarnings("unused")
@@ -18,16 +19,12 @@ public class DownloadScriptTest {
 
     @Test
     public void setUp() {
-        underTest = new DownloadScript(ARTIFACT_URI);
-    }
-
-    @Test
-    public void constructor_doesNotAcceptNullUri() {
-        assertThatThrownBy(() -> new DownloadScript(null)).isExactlyInstanceOf(NullPointerException.class).hasMessageContaining("artifactUri");
+        fakeDownloader = new FakeDownloader();
+        underTest = new DownloadScript(ARTIFACT_URI, fakeDownloader);
     }
 
     @Test
     public void testEqualsContract() {
-        EqualsVerifier.forClass(DownloadScript.class).usingGetClass().verify();
+        EqualsVerifier.forClass(DownloadScript.class).usingGetClass().withIgnoredFields("downloader").verify();
     }
 }
