@@ -2,7 +2,9 @@ package de.itemis.jmo.dodo;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import de.itemis.jmo.dodo.io.DodoDownloader;
 import de.itemis.jmo.dodo.io.Persistence;
@@ -43,6 +45,8 @@ public class DodoApp extends Application {
     private final StringParser<DownloadScript> scriptParser;
     private final Persistence persistence;
 
+    private final ExecutorService downloadExecutor = Executors.newFixedThreadPool(1);
+
     /**
      * Constructor for usage via {@link Application#launch(String...)} only.
      */
@@ -64,6 +68,13 @@ public class DodoApp extends Application {
         this.systemDialogs = systemDialogs;
         this.scriptParser = scriptParser;
         this.persistence = persistence;
+    }
+
+    @Override
+    public void stop() throws Exception {
+        downloadExecutor.shutdownNow();
+        downloadExecutor.awaitTermination(5000, TimeUnit.SECONDS);
+        super.stop();
     }
 
     /**
@@ -91,7 +102,7 @@ public class DodoApp extends Application {
         downloadBtnCol.setCellValueFactory(new FakeCellValueFactory<>());
         downloadBtnCol.setCellFactory(DownloadButtonTableCell.forTableColumn("Download", entry -> {
             Optional<Path> targetPath = systemDialogs.showSaveDialog(mainStage);
-            Executors.newCachedThreadPool().execute(() -> {
+            downloadExecutor.execute(() -> {
                 entry.download(targetPath.get());
                 Platform.runLater(() -> itemTable.refresh());
             });

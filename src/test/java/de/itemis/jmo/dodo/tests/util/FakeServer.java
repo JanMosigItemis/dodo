@@ -7,6 +7,7 @@ import static de.itemis.jmo.dodo.tests.util.TestHelper.fail;
 import static de.itemis.jmo.dodo.tests.util.TestHelper.printWarning;
 import static java.util.Arrays.fill;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
@@ -14,8 +15,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import de.itemis.jmo.dodo.util.DodoStallCallback;
 
 /**
  * A "server" that provides arbitrary artifacts for download. Thought to be a replacement for a real
@@ -27,7 +26,7 @@ public final class FakeServer {
 
     private URI httpServerBaseUri;
     private WireMockServer wireMockServer;
-    private DownloadTrafficListener trafficListener;
+    private DownloadListener downloadListener;
 
     /**
      * Make the artifact with the specified name available for download.
@@ -52,7 +51,7 @@ public final class FakeServer {
             printWarning("Stopping fake server ran into a problem", e);
         } finally {
             wireMockServer = null;
-            trafficListener = null;
+            downloadListener = null;
             httpServerBaseUri = null;
             registeredArtifacts.clear();
         }
@@ -60,8 +59,8 @@ public final class FakeServer {
 
     private void lazySetupHttpServer() {
         if (wireMockServer == null) {
-            trafficListener = new DownloadTrafficListener();
-            wireMockServer = new WireMockServer(options().dynamicPort().networkTrafficListener(trafficListener));
+            downloadListener = new DownloadListener();
+            wireMockServer = new WireMockServer(options().dynamicPort().extensions(downloadListener));
 
             try {
                 wireMockServer.start();
@@ -79,7 +78,7 @@ public final class FakeServer {
         return IoHelperForTests.readBytes(getClass(), "__files/" + artifactName).length;
     }
 
-    public DodoStallCallback becomeStall(String artifactName, double percentage) {
+    public void becomeStall(String artifactName, double percentage) {
         lazySetupHttpServer();
 
         unregisterDownloadStub(artifactName);
@@ -93,12 +92,16 @@ public final class FakeServer {
             .withId(stubId)
             .willReturn(aResponse()
                 .withBody(fakeDownload)
-                .withHeader("Content-Length", "" + artifactSize)));
+                .withHeader("Content-Length", "" + artifactSize))
+            .withPostServeAction(downloadListener.getName(), new ArtifactNameParameter(artifactName)));
         registeredArtifacts.put(artifactName, stubId);
+    }
 
-        DodoStallCallback callback = new DodoStallCallback();
-        trafficListener.addCallback(callback);
-        return callback;
+    /**
+     * Check if a request for the specified artifact has been successfully served.
+     */
+    public boolean downloadFinished(String artifactName) {
+        return downloadListener.requestServed(artifactName);
     }
 
     private void unregisterDownloadStub(String artifactName) {
@@ -113,13 +116,28 @@ public final class FakeServer {
     private URI registerDownloadStub(String artifactName) {
         registeredArtifacts.computeIfAbsent(artifactName, key -> {
             UUID stubId = UUID.randomUUID();
-            wireMockServer.stubFor(get("/" + key)
-                .withId(stubId)
-                .willReturn(aResponse()
-                    .withBodyFile(key)));
+            wireMockServer.stubFor(
+                get("/" + key)
+                    .withId(stubId)
+                    .willReturn(aResponse().withBodyFile(key))
+                    .withPostServeAction(downloadListener.getName(), new ArtifactNameParameter(artifactName)));
             return stubId;
         });
 
         return httpServerBaseUri.resolve("/" + artifactName);
+    }
+
+    /**
+     * Used for Jackson JSON processing only.
+     */
+    private static class ArtifactNameParameter {
+
+        // Jackson requires this member to be accessible.
+        @SuppressWarnings("unused")
+        public String artifactName;
+
+        public ArtifactNameParameter(@JsonProperty(DownloadListener.ARTIFACT_NAME_KEY) String artifactName) {
+            this.artifactName = artifactName;
+        }
     }
 }

@@ -38,7 +38,7 @@ public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Node
             DownloadEntry currentModel = getCurrentModel();
             currentModel.addDownloadListener(progress -> {
                 Platform.runLater(() -> {
-                    progressBar.setProgress(progress);
+                    progressBar.setProgress(progress / 100);
                     if (progress == 100.0) {
                         updateItem(downloadButton, false);
                     }

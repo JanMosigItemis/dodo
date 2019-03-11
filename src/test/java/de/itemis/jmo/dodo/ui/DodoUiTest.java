@@ -10,11 +10,9 @@ import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
 import java.nio.file.Path;
-import java.time.Duration;
 
 import de.itemis.jmo.dodo.tests.testfx.DodoUiTestDriver;
 import de.itemis.jmo.dodo.tests.testfx.JavaFxDodoTestDriver;
-import de.itemis.jmo.dodo.util.DodoStallCallback;
 
 @RunWith(JUnitPlatform.class)
 public class DodoUiTest {
@@ -43,7 +41,8 @@ public class DodoUiTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    public void tearDown(@TempDir Path tmpDir) {
+        // deleteRecursively(tmpDir);
         DODO.afterEach();
     }
 
@@ -68,14 +67,16 @@ public class DodoUiTest {
     @Test
     public void when_download_is_successful_indicate_success() {
         DODO.addDownloadSource(ARTIFACT_NAME);
-        DODO.download(ARTIFACT_NAME);
+        DODO.initiateDownload(ARTIFACT_NAME);
+        DODO.waitUntilDownloadFinished(ARTIFACT_NAME);
         DODO.assertDownloadSuccessIndicated(ARTIFACT_NAME);
     }
 
     @Test
     public void when_download_is_successful_then_artifact_is_stored() {
         DODO.addDownloadSource(ARTIFACT_NAME);
-        DODO.download(ARTIFACT_NAME);
+        DODO.initiateDownload(ARTIFACT_NAME);
+        DODO.waitUntilDownloadFinished(ARTIFACT_NAME);
         DODO.assertDownloadStored(ARTIFACT_NAME);
     }
 
@@ -83,9 +84,8 @@ public class DodoUiTest {
     public void when_download_is_active_show_progress() {
         double stallPercentage = 50.0;
         DODO.addDownloadSource(ARTIFACT_NAME);
-        DodoStallCallback callback = DODO.letDownloadStallAt(ARTIFACT_NAME, stallPercentage);
-        DODO.download(ARTIFACT_NAME);
-        callback.waitUntilStallPoint(Duration.ofSeconds(5));
+        DODO.letDownloadStallAt(ARTIFACT_NAME, stallPercentage);
+        DODO.initiateDownload(ARTIFACT_NAME);
         DODO.assertDownloadProgressDisplayed(ARTIFACT_NAME, stallPercentage);
     }
 }

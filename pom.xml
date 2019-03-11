@@ -44,7 +44,7 @@
         <equalsverifier.version>3.1.4</equalsverifier.version>
         <simple.json.version>1.1</simple.json.version>
         <wiremock.version>2.21.0</wiremock.version>
-
+        <awaitility.version>3.1.6</awaitility.version>
     </properties>
 
     <licenses>
@@ -269,6 +269,13 @@
                 <version>${wiremock.version}</version>
                 <scope>test</scope>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.awaitility/awaitility -->
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -400,6 +407,11 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

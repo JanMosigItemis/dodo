@@ -27,9 +27,9 @@ public class DownloadTrafficListener implements WiremockNetworkTrafficListener {
 
     @Override
     public void outgoing(Socket socket, ByteBuffer bytes) {
-        System.err.println("outgoing");
+        System.err.println("outgoing " + bytes.limit());
         if (outgoingCallCount.incrementAndGet() == 2) {
-            System.err.println("############### 2");
+            System.err.println("############### " + bytes.limit());
             callbacks.forEach(callback -> callback.stallPointReached());
             outgoingCallCount.set(0);
             callbacks.clear();

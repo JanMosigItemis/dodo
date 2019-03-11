@@ -107,7 +107,7 @@ public final class IoHelperForTests {
                     }
                 });
             } catch (IOException e) {
-                printWarning("Could not delete '" + path.toString() + "'.", e);
+                printWarning("Could not delete '" + path.toString() + "'", e);
             }
         }
     }
