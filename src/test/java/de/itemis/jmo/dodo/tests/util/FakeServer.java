@@ -1,22 +1,21 @@
 package de.itemis.jmo.dodo.tests.util;
 
-import static de.itemis.jmo.dodo.tests.util.IoHelperForTests.deleteRecursively;
-import static de.itemis.jmo.dodo.tests.util.IoHelperForTests.readBytes;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static de.itemis.jmo.dodo.tests.util.TestHelper.fail;
 import static de.itemis.jmo.dodo.tests.util.TestHelper.printWarning;
+import static java.util.Arrays.fill;
 
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.ResourceHandler;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 
-import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import de.itemis.jmo.dodo.util.DodoStallCallback;
 
 /**
  * A "server" that provides arbitrary artifacts for download. Thought to be a replacement for a real
@@ -24,11 +23,11 @@ import java.util.Map;
  */
 public final class FakeServer {
 
-    private final Map<String, byte[]> artifact = new HashMap<>();
+    private final Map<String, UUID> registeredArtifacts = new HashMap<>();
 
-    private Server httpServer;
     private URI httpServerBaseUri;
-    private Path resourceBasePath;
+    private WireMockServer wireMockServer;
+    private DownloadTrafficListener trafficListener;
 
     /**
      * Make the artifact with the specified name available for download.
@@ -36,17 +35,9 @@ public final class FakeServer {
      * @return {@link URI} of the artifact.
      */
     public URI provide(String artifactName) {
-        lazyCreateResourceBase();
         lazySetupHttpServer();
-
-        byte[] artifactBytes = artifact.computeIfAbsent(artifactName, key -> readBytes(this.getClass(), key));
-        try {
-            Files.write(resourceBasePath.resolve(artifactName), artifactBytes, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            fail("Could not write artifact file.", e);
-        }
-
-        return httpServerBaseUri.resolve("/" + artifactName);
+        unregisterDownloadStub(artifactName);
+        return registerDownloadStub(artifactName);
     }
 
     /**
@@ -54,56 +45,81 @@ public final class FakeServer {
      */
     public void stop() {
         try {
-            if (httpServer != null) {
-                httpServer.stop();
-            }
-            if (resourceBasePath != null) {
-                deleteRecursively(resourceBasePath);
+            if (wireMockServer != null) {
+                wireMockServer.stop();
             }
         } catch (Exception e) {
             printWarning("Stopping fake server ran into a problem", e);
         } finally {
-            httpServer = null;
+            wireMockServer = null;
+            trafficListener = null;
             httpServerBaseUri = null;
-            resourceBasePath = null;
-            artifact.clear();
-        }
-    }
-
-    private void lazyCreateResourceBase() {
-        if (resourceBasePath == null) {
-            try {
-                resourceBasePath = Files.createTempDirectory(this.getClass().getSimpleName());
-            } catch (IOException e) {
-                fail("Could not create temporary base dir for HTTP server.", e);
-            }
+            registeredArtifacts.clear();
         }
     }
 
     private void lazySetupHttpServer() {
-        if (httpServer == null) {
-            httpServer = new Server();
-            ServerConnector connector = new ServerConnector(httpServer);
-            connector.setPort(0);
-            Connector[] connectors = new Connector[] {connector};
-            httpServer.setConnectors(connectors);
-
-            ResourceHandler resourceHandler = new ResourceHandler();
-            resourceHandler.setDirectoriesListed(true);
-            resourceHandler.setResourceBase(resourceBasePath.toString());
-            httpServer.setHandler(resourceHandler);
+        if (wireMockServer == null) {
+            trafficListener = new DownloadTrafficListener();
+            wireMockServer = new WireMockServer(options().dynamicPort().networkTrafficListener(trafficListener));
 
             try {
-                httpServer.start();
+                wireMockServer.start();
             } catch (Exception e) {
                 fail("Could not start test HTTP server.", e);
             }
-            httpServerBaseUri = URI.create("http://localhost:" + connector.getLocalPort());
+            httpServerBaseUri = URI.create("http://localhost:" + wireMockServer.port());
         }
     }
 
+    /**
+     * @return the size of the artifact in bytes.
+     */
     public long getSize(String artifactName) {
-        provide(artifactName);
-        return artifact.get(artifactName).length;
+        return IoHelperForTests.readBytes(getClass(), "__files/" + artifactName).length;
+    }
+
+    public DodoStallCallback becomeStall(String artifactName, double percentage) {
+        lazySetupHttpServer();
+
+        unregisterDownloadStub(artifactName);
+
+        UUID stubId = UUID.randomUUID();
+        long artifactSize = getSize(artifactName);
+        byte[] fakeDownload = new byte[(int) artifactSize / 2];
+        fill(fakeDownload, (byte) 0);
+
+        wireMockServer.stubFor(get("/" + artifactName)
+            .withId(stubId)
+            .willReturn(aResponse()
+                .withBody(fakeDownload)
+                .withHeader("Content-Length", "" + artifactSize)));
+        registeredArtifacts.put(artifactName, stubId);
+
+        DodoStallCallback callback = new DodoStallCallback();
+        trafficListener.addCallback(callback);
+        return callback;
+    }
+
+    private void unregisterDownloadStub(String artifactName) {
+        if (registeredArtifacts.containsKey(artifactName)) {
+            UUID stubId = registeredArtifacts.get(artifactName);
+            StubMapping stub = wireMockServer.getSingleStubMapping(stubId);
+            wireMockServer.removeStub(stub);
+            registeredArtifacts.remove(artifactName);
+        }
+    }
+
+    private URI registerDownloadStub(String artifactName) {
+        registeredArtifacts.computeIfAbsent(artifactName, key -> {
+            UUID stubId = UUID.randomUUID();
+            wireMockServer.stubFor(get("/" + key)
+                .withId(stubId)
+                .willReturn(aResponse()
+                    .withBodyFile(key)));
+            return stubId;
+        });
+
+        return httpServerBaseUri.resolve("/" + artifactName);
     }
 }
