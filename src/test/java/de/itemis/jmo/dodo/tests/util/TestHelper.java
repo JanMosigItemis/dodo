@@ -5,6 +5,11 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Throwables;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
+
+import java.time.Duration;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import de.itemis.jmo.dodo.util.InstantiationNotAllowedException;
 
@@ -51,5 +56,27 @@ public final class TestHelper {
 
     private static String extractCauseMessage(Throwable cause) {
         return cause.getMessage() == null ? "w/o further information" : cause.getMessage();
+    }
+
+    /**
+     * Repeatedly run the provided action until either condition or timeout is reached.
+     *
+     * @param pollAction - Run this action.
+     * @param condition - Success condition.
+     * @param timeout - Precision is milliseconds.
+     * @throws AssertionError - In case polling timed out.
+     */
+    public static <T> void pollUntil(Supplier<T> pollAction, Predicate<T> condition, Duration timeout) {
+        long start = System.currentTimeMillis();
+        while (!condition.test(pollAction.get())) {
+            if (System.currentTimeMillis() - start >= timeout.toMillis()) {
+                Assertions.fail("Polling value timed out.");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                printWarning("Was interrupted while polling a value.", e);
+            }
+        }
     }
 }

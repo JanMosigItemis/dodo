@@ -6,9 +6,12 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.itemis.jmo.dodo.error.DodoWarning;
 import de.itemis.jmo.dodo.io.Persistence;
+import de.itemis.jmo.dodo.io.ProgressListener;
 
 /**
  * An entry of the table of downloadable content.
@@ -18,6 +21,7 @@ public class DownloadEntry {
     private final String artifactName;
     private final DownloadScript downloadScript;
     private final Persistence persistence;
+    private final List<ProgressListener> downloadListeners = new ArrayList<>();
 
     private boolean downloadFinished = false;
 
@@ -48,11 +52,22 @@ public class DownloadEntry {
      */
     public void download(Path targetPath) {
         try (InputStream artifactStream = downloadScript.createDownload()) {
+            updateDownloadProgress(50.0);
             persistence.write(targetPath, artifactStream);
         } catch (IOException e) {
             throw new DodoWarning("Error while closing stream.", e);
+        } finally {
+            updateDownloadProgress(100.0);
         }
         downloadFinished = true;
+    }
+
+    private void updateDownloadProgress(double percentage) {
+        downloadListeners.forEach(listener -> listener.updateProgress(percentage));
+    }
+
+    public void addDownloadListener(ProgressListener listener) {
+        downloadListeners.add(listener);
     }
 
     /**

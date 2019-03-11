@@ -4,14 +4,18 @@ import static de.itemis.jmo.dodo.util.NodeIdSanitizer.sanitize;
 
 import java.util.function.Consumer;
 
+import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
 
-public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Button> {
+public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Node> {
 
     private final Button downloadButton;
+    private final ProgressBar progressBar;
 
     /**
      * Create a new {@link Callback} that can be used in conjunction with
@@ -21,33 +25,54 @@ public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Butt
      * @param action - Action to run on button activation.
      * @return A new {@link Callback} instance.
      */
-    public static Callback<TableColumn<DownloadEntry, Button>, TableCell<DownloadEntry, Button>> forTableColumn(String buttonLabel,
+    public static Callback<TableColumn<DownloadEntry, Node>, TableCell<DownloadEntry, Node>> forTableColumn(String buttonLabel,
             Consumer<DownloadEntry> action) {
         return param -> new DownloadButtonTableCell(buttonLabel, action);
     }
 
     private DownloadButtonTableCell(String buttonLabel, Consumer<DownloadEntry> action) {
         downloadButton = new Button(buttonLabel);
+        progressBar = new ProgressBar();
         downloadButton.setOnAction(actionEvent -> {
-            action.accept(getCurrentModel());
+            updateItem(progressBar, false);
+            DownloadEntry currentModel = getCurrentModel();
+            currentModel.addDownloadListener(progress -> {
+                Platform.runLater(() -> {
+                    progressBar.setProgress(progress);
+                    if (progress == 100.0) {
+                        updateItem(downloadButton, false);
+                    }
+                });
+            });
+            action.accept(currentModel);
+
         });
         downloadButton.setMaxWidth(Double.MAX_VALUE);
     }
 
     @Override
-    public void updateItem(Button item, boolean empty) {
+    public void updateItem(Node item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty) {
             setText(null);
             setGraphic(null);
         } else {
-            if (downloadButton.getId() == null) {
-                DownloadEntry currentModel = getCurrentModel();
-                String newBtnId = "downloadButton_" + sanitize(currentModel.getArtifactName());
-                downloadButton.setId(newBtnId);
+            String nodeIdPrefix = "downloadButton_";
+            if (item == null) {
+                item = downloadButton;
             }
-            setGraphic(downloadButton);
+
+            if (item instanceof ProgressBar) {
+                nodeIdPrefix = "downloadProgress_";
+            }
+
+            if (item.getId() == null) {
+                String newBtnId = nodeIdPrefix + sanitize(getCurrentModel().getArtifactName());
+                item.setId(newBtnId);
+            }
+            System.err.println(item);
+            setGraphic(item);
         }
     }
 

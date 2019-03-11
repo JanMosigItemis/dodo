@@ -2,6 +2,7 @@ package de.itemis.jmo.dodo;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 
 import de.itemis.jmo.dodo.io.DodoDownloader;
 import de.itemis.jmo.dodo.io.Persistence;
@@ -15,8 +16,10 @@ import de.itemis.jmo.dodo.parsing.JsonScriptParser;
 import de.itemis.jmo.dodo.parsing.StringParser;
 import de.itemis.jmo.dodo.util.NativeOsDialogs;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
@@ -84,12 +87,14 @@ public class DodoApp extends Application {
         mainStage.setTitle("Dodo");
         mainStage.initStyle(StageStyle.DECORATED);
 
-        TableColumn<DownloadEntry, Button> downloadBtnCol = new TableColumn<>("Download");
+        TableColumn<DownloadEntry, Node> downloadBtnCol = new TableColumn<>("Download");
         downloadBtnCol.setCellValueFactory(new FakeCellValueFactory<>());
         downloadBtnCol.setCellFactory(DownloadButtonTableCell.forTableColumn("Download", entry -> {
             Optional<Path> targetPath = systemDialogs.showSaveDialog(mainStage);
-            entry.download(targetPath.get());
-            itemTable.refresh();
+            Executors.newCachedThreadPool().execute(() -> {
+                entry.download(targetPath.get());
+                Platform.runLater(() -> itemTable.refresh());
+            });
         }));
 
         TableColumn<DownloadEntry, Button> deleteBtnCol = new TableColumn<>("Delete");

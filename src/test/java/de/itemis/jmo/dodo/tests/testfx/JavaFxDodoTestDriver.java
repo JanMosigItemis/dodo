@@ -5,14 +5,17 @@ package de.itemis.jmo.dodo.tests.testfx;
 
 import static de.itemis.jmo.dodo.tests.util.JsonTestHelper.toDoubleQuotes;
 import static de.itemis.jmo.dodo.tests.util.TestHelper.fail;
+import static de.itemis.jmo.dodo.tests.util.TestHelper.pollUntil;
 import static de.itemis.jmo.dodo.util.NodeIdSanitizer.sanitize;
 import static java.nio.file.Files.size;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testfx.assertions.api.Assertions.assertThat;
+import static org.testfx.matcher.control.TableViewMatchers.hasTableCell;
 import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Optional;
 
 import de.itemis.jmo.dodo.DodoApp;
@@ -20,11 +23,14 @@ import de.itemis.jmo.dodo.io.DodoDownloader;
 import de.itemis.jmo.dodo.io.Downloader;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.model.DodoPersistence;
+import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.parsing.JsonScriptParser;
 import de.itemis.jmo.dodo.parsing.StringParser;
 import de.itemis.jmo.dodo.tests.util.FakeNativeDialogs;
 import de.itemis.jmo.dodo.tests.util.FakeServer;
+import de.itemis.jmo.dodo.util.DodoStallCallback;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
@@ -102,7 +108,7 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
 
     @Override
     public void assertDownloadSuccessIndicated(String artifactName) {
-        assertThat(itemTable()).hasTableCell(true);
+        pollUntil(() -> hasTableCell(true).matches(itemTable()), value -> value, Duration.ofSeconds(5));
     }
 
     @Override
@@ -115,7 +121,7 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
         assertThat(itemTable()).containsRow(artifactName, false);
     }
 
-    private TableView<Object> itemTable() {
+    private TableView<DownloadEntry> itemTable() {
         return lookup("#itemTable").queryTableView();
     }
 
@@ -138,5 +144,15 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
             throw new IllegalStateException("Please call initPersistence before running any tests.");
         }
         return tmpDir.resolve(artifactName);
+    }
+
+    @Override
+    public void assertDownloadProgressDisplayed(String artifactName, double expectedPercentage) {
+        assertThat(lookup("#downloadProgress_" + sanitize(artifactName)).queryAs(ProgressBar.class).getProgress()).isEqualTo(expectedPercentage);
+    }
+
+    @Override
+    public DodoStallCallback letDownloadStallAt(String artifactName, double percentage) {
+        return FAKE_SERVER.becomeStall(artifactName, percentage);
     }
 }
