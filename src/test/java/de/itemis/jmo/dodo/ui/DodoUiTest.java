@@ -22,7 +22,12 @@ public class DodoUiTest {
      * Managed in a static way, because it is not possible to "restart" a JavaFX app during one test
      * run.
      */
-    private static final DodoUiTestDriver DODO = new JavaFxDodoTestDriver();
+    private static final DodoUiTestDriver DODO;
+
+    static {
+        OpenJfxMonocleWindowsBugWorkaround.runIfOnWindows();
+        DODO = new JavaFxDodoTestDriver();
+    }
 
     @BeforeAll
     public static void setUpStatic() {

@@ -583,9 +583,6 @@
             </activation>
             <properties>
                 <current.os>win</current.os>
-                <!-- Deactivating headless build by removing the headless 
-                    JVM options. This is a workaround for bug https://github.com/javafxports/openjdk-jfx/issues/66 -->
-                <jvm.options></jvm.options>
             </properties>
         </profile>
         <profile>

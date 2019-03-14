@@ -21,6 +21,10 @@ public class AddDownloadSourceDialogUiTest {
 
     private AddDownloadSourceDialogUiTestDriver dialog;
 
+    static {
+        OpenJfxMonocleWindowsBugWorkaround.runIfOnWindows();
+    }
+
     @BeforeEach
     public void setUp() {
         dialog = new JavaFxAddDownloadSourceDialogUiTestDriver();
