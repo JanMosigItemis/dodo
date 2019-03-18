@@ -21,8 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import de.itemis.jmo.dodo.DodoApp;
-import de.itemis.jmo.dodo.io.DodoDownloader;
-import de.itemis.jmo.dodo.io.Downloader;
+import de.itemis.jmo.dodo.io.InternetDownloadFactory;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.model.DodoPersistence;
 import de.itemis.jmo.dodo.model.DownloadEntry;
@@ -48,8 +47,7 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
     private static final FakeServer FAKE_SERVER = new FakeServer();
 
     private final FakeNativeDialogs fakeDialogs = new FakeNativeDialogs();
-    private final Downloader downloader = new DodoDownloader();
-    private final StringParser<DownloadScript> scriptParser = new JsonScriptParser(downloader);
+    private final StringParser<DownloadScript> scriptParser = new JsonScriptParser(new InternetDownloadFactory());
     private final Persistence persistence = new DodoPersistence();
 
     private Path tmpDir;

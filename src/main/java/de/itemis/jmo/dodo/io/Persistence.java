@@ -1,6 +1,5 @@
 package de.itemis.jmo.dodo.io;
 
-import java.io.InputStream;
 import java.nio.file.Path;
 
 import de.itemis.jmo.dodo.error.DodoException;
@@ -11,14 +10,13 @@ import de.itemis.jmo.dodo.error.DodoException;
 public interface Persistence {
 
     /**
-     * Write all data from {@code dataSource} to the file that {@code targetPath} points to.
+     * Get all data from the provided {@code source} and write it to the target that
+     * {@code targetPath} points to. Replaces existing files.
      *
-     * @param targetPath - Must point to the target file.
-     * @param dataSource - Read data from this {@link InputStream}. Stream will be at end if this
-     *        method returns normally.
+     * @param dataSource - Use this object to read data.
+     * @param targetPath - Must point to the target.
+     *
      * @throws DodoException - In case reading or writing encountered an error.
      */
-    void write(Path targetPath, InputStream dataSource);
-
-
+    void write(DataSource dataSource, Path targetPath);
 }

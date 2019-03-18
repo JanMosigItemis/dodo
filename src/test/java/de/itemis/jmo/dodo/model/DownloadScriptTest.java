@@ -1,30 +1,34 @@
 package de.itemis.jmo.dodo.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
+import java.util.function.Supplier;
 
-import de.itemis.jmo.dodo.tests.util.FakeDownloader;
-import nl.jqno.equalsverifier.EqualsVerifier;
+import de.itemis.jmo.dodo.io.DodoDownload;
 
 public class DownloadScriptTest {
 
-    private static final URI ARTIFACT_URI = URI.create("artifactUri");
+    private DodoDownload downloadMock;
+    private Supplier<DodoDownload> downloadSup;
 
-    private FakeDownloader fakeDownloader;
-
-    // Will be used later on
-    @SuppressWarnings("unused")
     private DownloadScript underTest;
 
-    @Test
+    @BeforeEach
     public void setUp() {
-        fakeDownloader = new FakeDownloader();
-        underTest = new DownloadScript(ARTIFACT_URI, fakeDownloader);
+        downloadMock = mock(DodoDownload.class);
+        downloadSup = () -> downloadMock;
+
+        underTest = new DownloadScript(downloadSup);
     }
 
     @Test
-    public void testEqualsContract() {
-        EqualsVerifier.forClass(DownloadScript.class).usingGetClass().withIgnoredFields("downloader").verify();
+    public void createDownload_calls_download_create_function() {
+        DodoDownload result = underTest.createDownload();
+
+        assertThat(result).as("result of method").isEqualTo(downloadMock);
     }
 }

@@ -3,13 +3,13 @@ package de.itemis.jmo.dodo.model;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.itemis.jmo.dodo.error.DodoException;
 import de.itemis.jmo.dodo.error.DodoWarning;
+import de.itemis.jmo.dodo.io.DataSource;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.io.ProgressListener;
 
@@ -49,17 +49,25 @@ public class DownloadEntry {
      * Perform the download. Blocks until the download has been finished.
      *
      * @param path - Store all downloaded data into this file.
+     * @throws DodoException - In case of any kind of (IO) error during download or writing.
      */
     public void download(Path targetPath) {
-        try (InputStream artifactStream = downloadScript.createDownload()) {
+        DataSource dataSource = null;
+        try {
             updateDownloadProgress(50.0);
-            persistence.write(targetPath, artifactStream);
-        } catch (IOException e) {
-            throw new DodoWarning("Error while closing stream.", e);
+            dataSource = downloadScript.createDownload().getDataSource();
+            persistence.write(dataSource, targetPath);
+            downloadFinished = true;
         } finally {
+            try {
+                if (dataSource != null) {
+                    dataSource.close();
+                }
+            } catch (Exception e) {
+                throw new DodoWarning("Could not close data source.", e);
+            }
             updateDownloadProgress(100.0);
         }
-        downloadFinished = true;
     }
 
     private void updateDownloadProgress(double percentage) {

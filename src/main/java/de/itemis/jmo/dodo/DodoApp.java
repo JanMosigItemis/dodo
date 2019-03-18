@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import de.itemis.jmo.dodo.io.DodoDownloader;
+import de.itemis.jmo.dodo.io.InternetDownloadFactory;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.model.DeleteButtonTableCell;
 import de.itemis.jmo.dodo.model.DodoPersistence;
@@ -52,7 +52,7 @@ public class DodoApp extends Application {
      */
     public DodoApp() {
         systemDialogs = new NativeOsDialogs();
-        scriptParser = new JsonScriptParser(new DodoDownloader());
+        scriptParser = new JsonScriptParser(new InternetDownloadFactory());
         persistence = new DodoPersistence();
     }
 

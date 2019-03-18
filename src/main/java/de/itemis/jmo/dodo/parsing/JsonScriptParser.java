@@ -6,7 +6,7 @@ import org.json.simple.parser.ParseException;
 
 import java.net.URI;
 
-import de.itemis.jmo.dodo.io.Downloader;
+import de.itemis.jmo.dodo.io.DownloadFactory;
 import de.itemis.jmo.dodo.model.DownloadScript;
 
 /**
@@ -14,16 +14,16 @@ import de.itemis.jmo.dodo.model.DownloadScript;
  */
 public class JsonScriptParser implements StringParser<DownloadScript> {
 
-    private final Downloader downloader;
+    private final DownloadFactory downloadFactory;
 
     /**
      * Create a new instance.
      *
-     * @param downloader - Created {@link DownloadScript} entities will use this {@link Downloader}
-     *        in order to perform the actual download.
+     * @param downloadFactory - Created {@link DownloadScript} entities will use this
+     *        {@link DownloadFactory} in order to handle downloads.
      */
-    public JsonScriptParser(Downloader downloader) {
-        this.downloader = downloader;
+    public JsonScriptParser(DownloadFactory downloadFactory) {
+        this.downloadFactory = downloadFactory;
     }
 
     @Override
@@ -35,6 +35,8 @@ public class JsonScriptParser implements StringParser<DownloadScript> {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        return new DownloadScript(URI.create(object.get("uri").toString()), downloader);
+
+        URI downloadUri = URI.create(object.get("uri").toString());
+        return new DownloadScript(() -> downloadFactory.createDownload(downloadUri));
     }
 }

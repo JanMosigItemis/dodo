@@ -47,7 +47,6 @@ public class DodoUiTest {
 
     @AfterEach
     public void tearDown(@TempDir Path tmpDir) {
-        // deleteRecursively(tmpDir);
         DODO.afterEach();
     }
 

@@ -1,6 +1,8 @@
 package de.itemis.jmo.dodo.model;
 
 import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.DODO_EXCEPTION;
+import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.EXPECTED_IO_EXCEPTION;
+import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
@@ -14,12 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import de.itemis.jmo.dodo.error.DodoWarning;
+import de.itemis.jmo.dodo.io.DataSource;
+import de.itemis.jmo.dodo.io.DodoDownload;
 import de.itemis.jmo.dodo.io.Persistence;
 
 @RunWith(JUnitPlatform.class)
@@ -30,7 +32,9 @@ public class DownloadEntryTest {
 
     private DownloadScript downloadScriptMock;
     private Persistence persistenceMock;
-    private InputStream downloadStreamMock;
+
+    private DodoDownload downloadMock;
+    private DataSource dataSourceMock;
 
     private DownloadEntry underTest;
 
@@ -38,8 +42,12 @@ public class DownloadEntryTest {
     public void setUp() {
         downloadScriptMock = mock(DownloadScript.class);
         persistenceMock = mock(Persistence.class);
-        downloadStreamMock = mock(InputStream.class);
-        when(downloadScriptMock.createDownload()).thenReturn(downloadStreamMock);
+        downloadMock = mock(DodoDownload.class);
+        dataSourceMock = mock(DataSource.class);
+
+        when(downloadScriptMock.createDownload()).thenReturn(downloadMock);
+        when(downloadMock.getDataSource()).thenReturn(dataSourceMock);
+
         underTest = new DownloadEntry(ARTIFACT_NAME, downloadScriptMock, persistenceMock);
     }
 
@@ -60,49 +68,34 @@ public class DownloadEntryTest {
     }
 
     @Test
-    public void download_writes_scriptStream_to_persistence() {
+    public void download_passesDataSource_to_persistence() {
         download();
 
-        verify(persistenceMock).write(FAKE_PATH, downloadStreamMock);
-    }
-
-    @Test
-    public void download_stream_is_closed_after_successful_download() throws Exception {
-        download();
-
-        verify(downloadStreamMock).close();
-    }
-
-    @Test
-    public void script_dodoexceptions_are_propagated_as_is() {
-        when(downloadScriptMock.createDownload()).thenThrow(DODO_EXCEPTION);
-
-        assertThatThrownBy(downloadOp()).isSameAs(DODO_EXCEPTION);
+        verify(persistenceMock).write(dataSourceMock, FAKE_PATH);
     }
 
     @Test
     public void persistence_dodoexceptions_are_propagated_as_is() {
-        doThrow(DODO_EXCEPTION).when(persistenceMock).write(FAKE_PATH, downloadStreamMock);
+        doThrow(DODO_EXCEPTION).when(persistenceMock).write(dataSourceMock, FAKE_PATH);
 
         assertThatThrownBy(downloadOp()).isSameAs(DODO_EXCEPTION);
     }
 
     @Test
-    public void persistence_dodoexception_causes_downloadStream_to_be_closed() throws Exception {
-        doThrow(DODO_EXCEPTION).when(persistenceMock).write(FAKE_PATH, downloadStreamMock);
+    public void persistence_dodoexceptions_cause_source_to_be_closed() throws Exception {
+        doThrow(DODO_EXCEPTION).when(persistenceMock).write(dataSourceMock, FAKE_PATH);
 
         assertThatThrownBy(downloadOp());
 
-        verify(downloadStreamMock).close();
+        verify(dataSourceMock).close();
     }
 
     @Test
-    public void exception_during_download_stream_close_raises_dodowarning() throws Exception {
-        IOException expectedCause = new IOException();
-        doThrow(expectedCause).when(downloadStreamMock).close();
+    public void exceptions_during_source_close_become_warnings() throws Exception {
+        DodoWarning expectedWarning = new DodoWarning("Could not close data source.", EXPECTED_IO_EXCEPTION);
+        doThrow(EXPECTED_IO_EXCEPTION).when(dataSourceMock).close();
 
-        assertThatThrownBy(downloadOp()).isInstanceOf(DodoWarning.class).hasCause(expectedCause)
-            .hasMessage("Error while closing stream.");
+        assertThatThrownBy(downloadOp(), expectedWarning);
     }
 
     /*

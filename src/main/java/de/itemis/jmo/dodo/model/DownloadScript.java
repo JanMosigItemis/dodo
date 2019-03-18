@@ -1,10 +1,8 @@
 package de.itemis.jmo.dodo.model;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Objects;
+import java.util.function.Supplier;
 
-import de.itemis.jmo.dodo.io.Downloader;
+import de.itemis.jmo.dodo.io.DodoDownload;
 
 /**
  * <p>
@@ -16,46 +14,24 @@ import de.itemis.jmo.dodo.io.Downloader;
  */
 public class DownloadScript {
 
-    private final URI artifactUri;
-    private final Downloader downloader;
+    private final Supplier<DodoDownload> downloadSup;
 
     /**
      * Create a new instance.
      *
-     * @param artifactUri
+     * @param downloadSup - Creates new download instances.
      */
-    public DownloadScript(URI artifactUri, Downloader downloader) {
-        this.artifactUri = artifactUri;
-        this.downloader = downloader;
+    public DownloadScript(Supplier<DodoDownload> downloadSup) {
+        this.downloadSup = downloadSup;
     }
 
     /**
-     * "Execute" the script and create an {@link InputStream} that can be used to read downloadable
-     * bytes of the artifact.
+     * "Execute" the script and create a {@link DodoDownload} that can be used to actually run the
+     * download of data.
      *
-     * @return - A new instance of {@link InputStream}.
+     * @return - A new instance of {@link DodoDownload}.
      */
-    public InputStream createDownload() {
-        return downloader.openStream(artifactUri);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(artifactUri);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        DownloadScript other = (DownloadScript) obj;
-        return Objects.equals(artifactUri, other.artifactUri);
+    public DodoDownload createDownload() {
+        return downloadSup.get();
     }
 }

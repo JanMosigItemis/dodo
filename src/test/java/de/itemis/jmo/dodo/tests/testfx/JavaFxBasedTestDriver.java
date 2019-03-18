@@ -31,6 +31,7 @@ public abstract class JavaFxBasedTestDriver extends ApplicationTest implements D
             waitForFxEvents();
             internalAfter();
         } catch (Exception e) {
+            e.printStackTrace();
             printWarning("Test runner cleanup failed.", e);
         }
     }

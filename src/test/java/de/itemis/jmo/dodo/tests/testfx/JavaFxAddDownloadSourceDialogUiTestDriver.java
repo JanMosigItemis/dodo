@@ -13,7 +13,6 @@ import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.parsing.StringParser;
-import de.itemis.jmo.dodo.tests.util.FakeDownloader;
 import de.itemis.jmo.dodo.tests.util.FakeStringToDownloadScriptParser;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -38,7 +37,7 @@ public class JavaFxAddDownloadSourceDialogUiTestDriver extends JavaFxBasedTestDr
     @Override
     public void start(Stage stage) throws Exception {
         super.start(stage);
-        parser = new FakeStringToDownloadScriptParser(INVALID_SCRIPT, new FakeDownloader());
+        parser = new FakeStringToDownloadScriptParser(INVALID_SCRIPT);
         resultRef = new AtomicReference<>(Optional.empty());
         resultReadyLatch = new CountDownLatch(1);
 
