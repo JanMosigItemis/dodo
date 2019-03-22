@@ -10,7 +10,7 @@ matrix:
   include:
   - os: linux
     dist: trusty
-    jdk: openjdk12
+    jdk: oraclejdk11
 install: true
 
 # -B enables non interactive mode and disables colors

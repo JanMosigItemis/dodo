@@ -20,7 +20,7 @@ public class DodoPersistence implements Persistence {
     @Override
     public void write(DataSource dataSource, Path targetPath) {
         try (OutputStream out = newOutputStream(targetPath, CREATE, TRUNCATE_EXISTING)) {
-            byte[] buf = new byte[0];
+            byte[] buf = null;
             while ((buf = dataSource.read()).length > 0) {
                 out.write(buf);
             }
