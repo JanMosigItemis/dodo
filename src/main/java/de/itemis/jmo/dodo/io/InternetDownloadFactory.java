@@ -24,7 +24,7 @@ public class InternetDownloadFactory implements DownloadFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternetDownloadFactory.class);
 
-    private static final Map<String, Function<UrlWrapper, DodoDownload>> ACCEPTED_INTERNET_PROTOCOLS = new HashMap<>();
+    private static final Map<String, Function<WrappedUrl, DodoDownload>> ACCEPTED_INTERNET_PROTOCOLS = new HashMap<>();
     static {
         ACCEPTED_INTERNET_PROTOCOLS.put("http", url -> new HttpDownload(url));
         ACCEPTED_INTERNET_PROTOCOLS.put("https", url -> new HttpDownload(url));
@@ -33,11 +33,11 @@ public class InternetDownloadFactory implements DownloadFactory {
     @Override
     public DodoDownload createDownload(URI uri) {
         String scheme = nullToEmpty(uri.getScheme());
-        UrlWrapper downloadUrl = null;
+        WrappedUrl downloadUrl = null;
 
         if (!scheme.isBlank()) {
             try {
-                downloadUrl = new UrlWrapper(uri.toURL());
+                downloadUrl = new WrappedUrl(uri.toURL());
             } catch (MalformedURLException e) {
                 if (e.getMessage().contains("unknown protocol")) {
                     LOG.warn("While creating download: Encountered unknown protocol: '" + scheme + "'.");

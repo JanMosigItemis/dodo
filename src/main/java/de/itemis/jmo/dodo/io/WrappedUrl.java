@@ -3,6 +3,9 @@ package de.itemis.jmo.dodo.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
+
+import de.itemis.jmo.dodo.error.DodoException;
 
 /**
  * In some test cases it is necessary to mock a {@link URL}. Since this class is declared final in
@@ -10,7 +13,7 @@ import java.net.URL;
  * are going to use instances of this wrapper instead. They can be easily mocked and they are
  * thought to provide only those methods of {@link URL} that are required for DoDo.
  */
-public class UrlWrapper {
+public class WrappedUrl {
 
     private final URL url;
 
@@ -19,7 +22,7 @@ public class UrlWrapper {
      *
      * @param url - Wrap this {@link URL}.
      */
-    public UrlWrapper(URL url) {
+    public WrappedUrl(URL url) {
         this.url = url;
     }
 
@@ -31,5 +34,19 @@ public class UrlWrapper {
      */
     public InputStream openStream() throws IOException {
         return url.openStream();
+    }
+
+    /**
+     * Like {@link URLConnection#getContentLength()}
+     */
+    public long getContentLength() {
+        long result = -1;
+        try {
+            result = url.openConnection().getContentLengthLong();
+        } catch (IOException | IllegalArgumentException e) {
+            throw new DodoException("Could not open connection.", e);
+        }
+
+        return result;
     }
 }

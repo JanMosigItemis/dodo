@@ -114,12 +114,16 @@ public final class FakeServer {
     }
 
     private URI registerDownloadStub(String artifactName) {
+        long artifactSize = getSize(artifactName);
         registeredArtifacts.computeIfAbsent(artifactName, key -> {
             UUID stubId = UUID.randomUUID();
             wireMockServer.stubFor(
                 get("/" + key)
                     .withId(stubId)
-                    .willReturn(aResponse().withBodyFile(key))
+                    .willReturn(
+                        aResponse()
+                            .withBodyFile(key)
+                            .withHeader("Content-Length", "" + artifactSize))
                     .withPostServeAction(downloadListener.getName(), new ArtifactNameParameter(artifactName)));
             return stubId;
         });

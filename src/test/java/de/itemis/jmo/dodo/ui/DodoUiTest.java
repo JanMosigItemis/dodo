@@ -17,7 +17,9 @@ import de.itemis.jmo.dodo.tests.testfx.JavaFxDodoTestDriver;
 @RunWith(JUnitPlatform.class)
 public class DodoUiTest {
 
-    private static final String ARTIFACT_NAME = "test.artifact.one";
+    private static final String ARTIFACT_ONE_NAME = "test.artifact.one";
+    private static final String ARTIFACT_TWO_NAME = "test.artifact.two";
+
     /*
      * Managed in a static way, because it is not possible to "restart" a JavaFX app during one test
      * run.
@@ -57,39 +59,41 @@ public class DodoUiTest {
 
     @Test
     public void when_downloadSource_hasBeenAdded_itGetsDisplayed() {
-        DODO.addDownloadSource(ARTIFACT_NAME);
-        DODO.assertDownloadEntryDisplayed(ARTIFACT_NAME);
+        DODO.addDownloadSource(ARTIFACT_ONE_NAME);
+        DODO.assertDownloadEntryDisplayed(ARTIFACT_ONE_NAME);
     }
 
     @Test
     public void when_delete_then_entry_is_removed() {
-        DODO.addDownloadSource(ARTIFACT_NAME);
-        DODO.delete(ARTIFACT_NAME);
+        DODO.addDownloadSource(ARTIFACT_ONE_NAME);
+        DODO.delete(ARTIFACT_ONE_NAME);
         DODO.assertNoDownloadEntriesDisplayed();
     }
 
     @Test
     public void when_download_is_successful_indicate_success() {
-        DODO.addDownloadSource(ARTIFACT_NAME);
-        DODO.initiateDownload(ARTIFACT_NAME);
-        DODO.waitUntilDownloadFinished(ARTIFACT_NAME);
-        DODO.assertDownloadSuccessIndicated(ARTIFACT_NAME);
+        DODO.addDownloadSource(ARTIFACT_ONE_NAME);
+        DODO.initiateDownload(ARTIFACT_ONE_NAME);
+        DODO.waitUntilDownloadFinished(ARTIFACT_ONE_NAME);
+        DODO.assertDownloadSuccessIndicated(ARTIFACT_ONE_NAME);
     }
 
     @Test
     public void when_download_is_successful_then_artifact_is_stored() {
-        DODO.addDownloadSource(ARTIFACT_NAME);
-        DODO.initiateDownload(ARTIFACT_NAME);
-        DODO.waitUntilDownloadFinished(ARTIFACT_NAME);
-        DODO.assertDownloadStored(ARTIFACT_NAME);
+        DODO.addDownloadSource(ARTIFACT_ONE_NAME);
+        DODO.initiateDownload(ARTIFACT_ONE_NAME);
+        DODO.waitUntilDownloadFinished(ARTIFACT_ONE_NAME);
+        DODO.assertDownloadStored(ARTIFACT_ONE_NAME);
     }
 
+    // Download block size is 8192 bytes. In order to safely stall at 50%, we must use a 16k
+    // artifact, which is artifact two.
     @Test
     public void when_download_is_active_show_progress() {
         double stallPercentage = 50.0;
-        DODO.addDownloadSource(ARTIFACT_NAME);
-        DODO.letDownloadStallAt(ARTIFACT_NAME, stallPercentage);
-        DODO.initiateDownload(ARTIFACT_NAME);
-        DODO.assertDownloadProgressDisplayed(ARTIFACT_NAME, stallPercentage);
+        DODO.addDownloadSource(ARTIFACT_TWO_NAME);
+        DODO.letDownloadStallAt(ARTIFACT_TWO_NAME, stallPercentage);
+        DODO.initiateDownload(ARTIFACT_TWO_NAME);
+        DODO.assertDownloadProgressDisplayed(ARTIFACT_TWO_NAME, stallPercentage);
     }
 }

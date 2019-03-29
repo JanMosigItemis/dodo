@@ -16,16 +16,19 @@ import de.itemis.jmo.dodo.tests.util.ExpectedExceptions;
 
 public class HttpDownloadTest {
 
-    private UrlWrapper urlMock;
+    private static final long DOWNLOAD_SIZE = 12;
+
+    private WrappedUrl urlMock;
     private InputStream streamMock;
 
     private HttpDownload underTest;
 
     @BeforeEach
     public void setUp() throws Exception {
-        urlMock = mock(UrlWrapper.class);
+        urlMock = mock(WrappedUrl.class);
         streamMock = mock(InputStream.class);
         when(urlMock.openStream()).thenReturn(streamMock);
+        when(urlMock.getContentLength()).thenReturn(DOWNLOAD_SIZE);
 
         underTest = new HttpDownload(urlMock);
     }
@@ -50,5 +53,12 @@ public class HttpDownloadTest {
         DodoException expectedException = new DodoException("Encountered error while opening a stream.", EXPECTED_IO_EXCEPTION);
 
         ExpectedExceptions.assertThatThrownBy(() -> underTest.getDataSource(), expectedException);
+    }
+
+    @Test
+    public void getSize_returns_download_size_in_bytes() {
+        long result = underTest.getSize();
+
+        assertThat(result).as("Encountered unexpected download size.").isEqualTo(DOWNLOAD_SIZE);
     }
 }

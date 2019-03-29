@@ -12,12 +12,12 @@ public class HttpDownload implements DodoDownload {
      */
     public static final int BLOCK_SIZE_BYTES = 8192;
 
-    private final UrlWrapper downloadUrl;
+    private final WrappedUrl downloadUrl;
 
     /**
      * Create new instance.
      */
-    public HttpDownload(UrlWrapper url) {
+    public HttpDownload(WrappedUrl url) {
         downloadUrl = url;
     }
 
@@ -33,4 +33,8 @@ public class HttpDownload implements DodoDownload {
         return new StreamDataSource(inputStream, BLOCK_SIZE_BYTES);
     }
 
+    @Override
+    public long getSize() {
+        return downloadUrl.getContentLength();
+    }
 }

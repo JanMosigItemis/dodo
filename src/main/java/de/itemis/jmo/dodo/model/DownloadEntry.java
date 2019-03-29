@@ -10,6 +10,7 @@ import java.util.List;
 import de.itemis.jmo.dodo.error.DodoException;
 import de.itemis.jmo.dodo.error.DodoWarning;
 import de.itemis.jmo.dodo.io.DataSource;
+import de.itemis.jmo.dodo.io.DodoDownload;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.io.ProgressListener;
 
@@ -21,7 +22,7 @@ public class DownloadEntry {
     private final String artifactName;
     private final DownloadScript downloadScript;
     private final Persistence persistence;
-    private final List<ProgressListener> downloadListeners = new ArrayList<>();
+    private final List<ProgressListener<Double>> downloadListeners = new ArrayList<>();
 
     private boolean downloadFinished = false;
 
@@ -54,9 +55,13 @@ public class DownloadEntry {
     public void download(Path targetPath) {
         DataSource dataSource = null;
         try {
-            updateDownloadProgress(50.0);
-            dataSource = downloadScript.createDownload().getDataSource();
-            persistence.write(dataSource, targetPath);
+            DodoDownload download = downloadScript.createDownload();
+            dataSource = download.getDataSource();
+            persistence.write(dataSource, targetPath, writtenBytes -> {
+                long totalBytes = download.getSize();
+                double percentage = ((double) writtenBytes / totalBytes) * 100;
+                updateDownloadProgress(percentage);
+            });
             downloadFinished = true;
         } finally {
             try {
@@ -66,7 +71,6 @@ public class DownloadEntry {
             } catch (Exception e) {
                 throw new DodoWarning("Could not close data source.", e);
             }
-            updateDownloadProgress(100.0);
         }
     }
 
@@ -74,7 +78,7 @@ public class DownloadEntry {
         downloadListeners.forEach(listener -> listener.updateProgress(percentage));
     }
 
-    public void addDownloadListener(ProgressListener listener) {
+    public void addDownloadListener(ProgressListener<Double> listener) {
         downloadListeners.add(listener);
     }
 

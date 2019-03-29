@@ -15,7 +15,10 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -35,7 +38,7 @@ public class DodoPersistenceIntegrationTest {
     private DataSource dataSourceMock;
     private Path targetPath;
 
-    private Persistence underTest;
+    private DodoPersistence underTest;
 
     @BeforeEach
     public void setUp() {
@@ -107,6 +110,21 @@ public class DodoPersistenceIntegrationTest {
         write();
 
         assertThat(size(targetPath)).isEqualTo(DOWNLOAD_BYTES.length);
+    }
+
+    @Test
+    public void write_informs_listener() {
+        // Mocking generic types with mockito cannot be done in a compiler safe way.
+        @SuppressWarnings("unchecked")
+        ProgressListener<Long> listener = mock(ProgressListener.class);
+        dataSourceMock = new StreamDataSource(new ByteArrayInputStream(DOWNLOAD_BYTES), DOWNLOAD_BYTES.length / 4);
+        underTest.write(dataSourceMock, targetPath, listener);
+
+        InOrder order = Mockito.inOrder(listener);
+        order.verify(listener).updateProgress(3L);
+        order.verify(listener).updateProgress(6L);
+        order.verify(listener).updateProgress(9L);
+        order.verify(listener).updateProgress(12L);
     }
 
     /*
