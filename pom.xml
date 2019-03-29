@@ -659,12 +659,15 @@
                                     <artifactSet>
                                         <includes>
                                             <!-- Due to the kind of "exclusion" 
-                                                of non matching artifacts, you need to specify all dependencies here that 
-                                                you want to appear in your local build. This does not affect CI build. -->
+                                                of non matching artifacts, you need to specify all dependencies and their 
+                                                transitive runtime dependencies here that you want to appear in your local 
+                                                build. This does not affect CI build. -->
                                             <include>org.openjfx:*:*:${current.os}:*</include>
                                             <include>com.googlecode.json-simple:json-simple</include>
                                             <include>com.google.guava:guava</include>
                                             <include>ch.qos.logback:logback-classic</include>
+                                            <include>ch.qos.logback:logback-core</include>
+                                            <include>org.slf4j:slf4j-api</include>
                                         </includes>
                                     </artifactSet>
                                 </configuration>
