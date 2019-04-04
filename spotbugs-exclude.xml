@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
+    <!-- This implementation of Iterator is supposed to never throw NoSuchElementException. -->
+    <Match>
+        <Class name="de.itemis.jmo.dodo.util.InfiniteIterationOf" />
+        <Method name="next" />
+        <Bug pattern="IT_NO_SUCH_ELEMENT" />
+    </Match>
 </FindBugsFilter>

@@ -1,5 +1,7 @@
 package de.itemis.jmo.dodo.ui;
 
+import static de.itemis.jmo.dodo.tests.util.TestHelper.getLocalizedDecimalSeparator;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +20,6 @@ import de.itemis.jmo.dodo.tests.testfx.JavaFxDodoTestDriver;
 public class DodoUiTest {
 
     private static final String ARTIFACT_ONE_NAME = "test.artifact.one";
-    private static final String ARTIFACT_TWO_NAME = "test.artifact.two";
 
     /*
      * Managed in a static way, because it is not possible to "restart" a JavaFX app during one test
@@ -83,17 +84,21 @@ public class DodoUiTest {
         DODO.addDownloadSource(ARTIFACT_ONE_NAME);
         DODO.initiateDownload(ARTIFACT_ONE_NAME);
         DODO.waitUntilDownloadFinished(ARTIFACT_ONE_NAME);
+
         DODO.assertDownloadStored(ARTIFACT_ONE_NAME);
     }
 
-    // Download block size is 8192 bytes. In order to safely stall at 50%, we must use a 16k
-    // artifact, which is artifact two.
+    // Be aware of the different formats for floating point nbrs. depending on the default locale.
     @Test
     public void when_download_is_active_show_progress() {
-        double stallPercentage = 50.0;
-        DODO.addDownloadSource(ARTIFACT_TWO_NAME);
-        DODO.letDownloadStallAt(ARTIFACT_TWO_NAME, stallPercentage);
-        DODO.initiateDownload(ARTIFACT_TWO_NAME);
-        DODO.assertDownloadProgressDisplayed(ARTIFACT_TWO_NAME, stallPercentage);
+        int stallPercentage = 50;
+        String decimalSeparator = getLocalizedDecimalSeparator();
+        String expectedText = stallPercentage + decimalSeparator + "0";
+        DODO.addDownloadSource(ARTIFACT_ONE_NAME);
+        DODO.letDownloadStallAt(ARTIFACT_ONE_NAME, stallPercentage);
+        DODO.initiateDownload(ARTIFACT_ONE_NAME);
+
+        DODO.assertDownloadProgressBarAt(ARTIFACT_ONE_NAME, stallPercentage);
+        DODO.assertDownloadProgressText(ARTIFACT_ONE_NAME, expectedText);
     }
 }

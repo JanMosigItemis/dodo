@@ -67,13 +67,22 @@ public interface DodoUiTestDriver extends DodoTestsJunit5Lifecycle {
      * @param percentage - Stall as soon as this percentage has been downloaded.
      * @param artifactName - Name of artifact for which to stall the download.
      */
-    void letDownloadStallAt(String artifactName, double percentage);
+    void letDownloadStallAt(String artifactName, int percentage);
 
     /**
-     * Assert that the specified download progress is displayed.
+     * Assert that the download progress bar for the specified artifact is at {@code percentage}.
      *
-     * @param percentage - Progress in percent.
+     * @param percentage - Expected progress in percent.
      * @param artifactName - Name of artifact for which to perform the assert.
      */
-    void assertDownloadProgressDisplayed(String artifcatName, double percentage);
+    void assertDownloadProgressBarAt(String artifcatName, int percentage);
+
+    /**
+     * Assert that the download progress for the specified artifact is readable as text and has the
+     * specified expected value.
+     *
+     * @param expectedText - Expected progress value.
+     * @param artifactName - Name of artifact for which to perform the assert.
+     */
+    void assertDownloadProgressText(String artifactName, String expectedText);
 }

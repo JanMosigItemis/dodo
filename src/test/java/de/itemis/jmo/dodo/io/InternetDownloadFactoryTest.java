@@ -3,23 +3,31 @@ package de.itemis.jmo.dodo.io;
 import static de.itemis.jmo.dodo.tests.util.UriTestData.VALID_URI_NO_SCHEME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Iterator;
 
 import de.itemis.jmo.dodo.error.DodoException;
 import de.itemis.jmo.dodo.tests.util.UriTestData;
 
 public class InternetDownloadFactoryTest {
 
+    private Iterator<Integer> blockSizeStrategyMock;
+
     private InternetDownloadFactory underTest;
 
+    // Mockito's mock API does not go well with generics. However, everything safe here.
+    @SuppressWarnings("unchecked")
     @BeforeEach
     public void setUp() {
-        underTest = new InternetDownloadFactory();
+        blockSizeStrategyMock = mock(Iterator.class);
+
+        underTest = new InternetDownloadFactory(blockSizeStrategyMock);
     }
 
     @Test
@@ -64,5 +72,4 @@ public class InternetDownloadFactoryTest {
             .hasMessage("Provided URI was not a valid URL.")
             .hasCauseInstanceOf(MalformedURLException.class);
     }
-
 }

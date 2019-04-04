@@ -31,6 +31,7 @@ public class DodoPersistence implements Persistence {
             long totalBytesWritten = 0;
             while ((buf = dataSource.read()).length > 0) {
                 out.write(buf);
+                out.flush();
                 totalBytesWritten = totalBytesWritten + buf.length;
                 listener.updateProgress(totalBytesWritten);
             }

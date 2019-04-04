@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.Iterator;
 
 import de.itemis.jmo.dodo.error.DodoException;
 import de.itemis.jmo.dodo.tests.util.ExpectedExceptions;
@@ -20,17 +21,21 @@ public class HttpDownloadTest {
 
     private WrappedUrl urlMock;
     private InputStream streamMock;
+    private Iterator<Integer> blockSizeStrategyMock;
 
     private HttpDownload underTest;
 
+    // Mockito's mock API does not go well with generics. However, everything is safe here.
+    @SuppressWarnings("unchecked")
     @BeforeEach
     public void setUp() throws Exception {
+        blockSizeStrategyMock = mock(Iterator.class);
         urlMock = mock(WrappedUrl.class);
         streamMock = mock(InputStream.class);
         when(urlMock.openStream()).thenReturn(streamMock);
         when(urlMock.getContentLength()).thenReturn(DOWNLOAD_SIZE);
 
-        underTest = new HttpDownload(urlMock);
+        underTest = new HttpDownload(urlMock, blockSizeStrategyMock);
     }
 
     @Test

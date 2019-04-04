@@ -10,6 +10,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import de.itemis.jmo.dodo.error.DodoException;
@@ -34,11 +37,15 @@ public class StreamDataSourceTest {
 
     private InputStream realStream;
     private InputStream streamMock;
+    private Iterator<Integer> blockSizeStrategyMock;
 
     private StreamDataSource underTest;
 
+    // Mockito's mock API does not go well with generics. However, everything is safe here.
+    @SuppressWarnings("unchecked")
     @BeforeEach
     public void setUp() throws Exception {
+        blockSizeStrategyMock = mock(Iterator.class);
         streamMock = mock(InputStream.class);
 
         constructUnderTest(DATA_LENGTH_BYTES);
@@ -73,15 +80,17 @@ public class StreamDataSourceTest {
 
     @Test
     public void read_returns_all_data_if_block_size_equals_data() {
+        nextBlockSizeIs(DATA_LENGTH_BYTES);
+
         byte[] result = underTest.read();
 
         assertThat(result).as("Encountered unexpected read result").isEqualTo(DATA);
     }
 
     @Test
-    public void read_returns_block_size_data_if_block_size_smaller_data() throws Exception {
+    public void read_returns_block_size_data_if_block_size_smaller_data() {
         int blockSize = DATA_LENGTH_BYTES - 1;
-        constructUnderTest(blockSize);
+        nextBlockSizeIs(blockSize);
 
         byte[] actualResult = underTest.read();
 
@@ -89,8 +98,8 @@ public class StreamDataSourceTest {
     }
 
     @Test
-    public void read_returns_all_data_if_block_size_greater_data() throws Exception {
-        constructUnderTest(DATA_LENGTH_BYTES + 1);
+    public void read_returns_all_data_if_block_size_greater_data() {
+        nextBlockSizeIs(DATA_LENGTH_BYTES + 1);
 
         byte[] actualResult = underTest.read();
 
@@ -98,10 +107,10 @@ public class StreamDataSourceTest {
     }
 
     @Test
-    public void reads_all_data_if_block_size_is_multiple_of_length_and_read_is_done_multiple_times() throws Exception {
+    public void reads_all_data_if_block_size_is_multiple_of_length_and_read_is_done_multiple_times() {
         int factor = 2;
         int blockSize = DATA_LENGTH_BYTES / factor;
-        constructUnderTest(blockSize);
+        nextBlockSizeIs(blockSize);
 
         var readBytes = readInLoop(factor);
 
@@ -129,14 +138,31 @@ public class StreamDataSourceTest {
 
     @Test
     public void constructing_with_block_size_zero_raises_illegal_argument() {
-        assertThatThrownBy(() -> new StreamDataSource(streamMock, 0)).isInstanceOf(IllegalArgumentException.class)
+        nextBlockSizeIs(0);
+
+        assertThatThrownBy(() -> underTest.read()).isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Block size must be greater than zero.");
     }
 
     @Test
-    public void constructing_with_negative_block_size_raises_illegal_argument() {
-        assertThatThrownBy(() -> new StreamDataSource(streamMock, -1)).isInstanceOf(IllegalArgumentException.class)
+    public void providing_negative_block_size_during_read_causes_read_with_default_block_size() {
+        nextBlockSizeIs(-1);
+
+        assertThatThrownBy(() -> underTest.read()).isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Block size must be greater than zero.");
+    }
+
+    @Test
+    public void reading_with_varying_block_sizes_yields_correct_result() {
+        int first = 1;
+        int second = 2;
+        int third = 3;
+        int tail = DATA_LENGTH_BYTES - first - second - third;
+        nextBlockSizeIs(first, second, third, tail);
+
+        byte[] result = readInLoop(4);
+
+        assertThat(result).isEqualTo(DATA);
     }
 
     /*
@@ -172,7 +198,9 @@ public class StreamDataSourceTest {
         return result;
     }
 
-    private void constructUnderTest(int dataLengthBytes) throws Exception {
+    private void constructUnderTest(int blockSizeBytes) throws Exception {
+        nextBlockSizeIs(blockSizeBytes);
+
         realStream = new ByteArrayInputStream(DATA);
 
         streamReadOpAnswer(invocation -> {
@@ -181,6 +209,13 @@ public class StreamDataSourceTest {
             int len = invocation.getArgument(2);
             return realStream.readNBytes(buf, offset, len);
         });
-        underTest = new StreamDataSource(streamMock, dataLengthBytes);
+
+        underTest = new StreamDataSource(streamMock, blockSizeStrategyMock);
+    }
+
+    private void nextBlockSizeIs(Integer... blockSizes) {
+        int head = blockSizes[0];
+        Integer[] tail = blockSizes.length > 1 ? Arrays.copyOfRange(blockSizes, 1, blockSizes.length) : new Integer[0];
+        when(blockSizeStrategyMock.next()).thenReturn(head, tail);
     }
 }

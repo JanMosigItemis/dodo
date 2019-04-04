@@ -23,10 +23,22 @@ import java.util.UUID;
 public final class FakeServer {
 
     private final Map<String, UUID> registeredArtifacts = new HashMap<>();
+    private final DownloadBlockSizeStrategyForTests downloadBlockSizeBytes;
 
     private URI httpServerBaseUri;
     private WireMockServer wireMockServer;
     private DownloadListener downloadListener;
+
+    /**
+     * Construct a new instance.
+     *
+     * @param downloadBlockSizeStrategy - The block size of dodo downloads. Used to reliably
+     *        calculate things when download stall at particular percentages is required. The fake
+     *        server may change the next block size as
+     */
+    public FakeServer(DownloadBlockSizeStrategyForTests downloadBlockSizeStrategy) {
+        this.downloadBlockSizeBytes = downloadBlockSizeStrategy;
+    }
 
     /**
      * Make the artifact with the specified name available for download.
@@ -78,14 +90,15 @@ public final class FakeServer {
         return IoHelperForTests.readBytes(getClass(), "__files/" + artifactName).length;
     }
 
-    public void becomeStall(String artifactName, double percentage) {
+    public void becomeStall(String artifactName, int percentage) {
         lazySetupHttpServer();
 
         unregisterDownloadStub(artifactName);
 
         UUID stubId = UUID.randomUUID();
-        long artifactSize = getSize(artifactName);
-        byte[] fakeDownload = new byte[(int) artifactSize / 2];
+        long artifactSize = 100;
+        downloadBlockSizeBytes.setNext(1);
+        byte[] fakeDownload = new byte[(int) Math.round(artifactSize * ((double) percentage / 100))];
         fill(fakeDownload, (byte) 0);
 
         wireMockServer.stubFor(get("/" + artifactName)

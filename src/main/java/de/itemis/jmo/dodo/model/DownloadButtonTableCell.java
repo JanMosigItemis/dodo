@@ -10,12 +10,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Node> {
 
+    private final StackPane pane;
     private final Button downloadButton;
     private final ProgressBar progressBar;
+    private final Text progressText;
 
     /**
      * Create a new {@link Callback} that can be used in conjunction with
@@ -31,15 +35,19 @@ public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Node
     }
 
     private DownloadButtonTableCell(String buttonLabel, Consumer<DownloadEntry> action) {
+        pane = new StackPane();
         downloadButton = new Button(buttonLabel);
         progressBar = new ProgressBar();
+        progressText = new Text();
+
         downloadButton.setOnAction(actionEvent -> {
-            updateItem(progressBar, false);
+            updateItem(pane, false);
             DownloadEntry currentModel = getCurrentModel();
-            currentModel.addDownloadListener(progress -> {
+            currentModel.addDownloadListener(progressPercent -> {
                 Platform.runLater(() -> {
-                    progressBar.setProgress(progress / 100);
-                    if (progress == 100.0) {
+                    progressBar.setProgress(progressPercent / 100);
+                    progressText.setText(String.format("%.1f", progressPercent));
+                    if (progressPercent >= 100.0) {
                         updateItem(downloadButton, false);
                     }
                 });
@@ -48,6 +56,8 @@ public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Node
 
         });
         downloadButton.setMaxWidth(Double.MAX_VALUE);
+        progressBar.setMaxWidth(Double.MAX_VALUE);
+        pane.getChildren().addAll(progressBar, progressText);
     }
 
     @Override
@@ -58,20 +68,21 @@ public final class DownloadButtonTableCell extends TableCell<DownloadEntry, Node
             setText(null);
             setGraphic(null);
         } else {
-            String nodeIdPrefix = "downloadButton_";
             if (item == null) {
                 item = downloadButton;
             }
 
-            if (item instanceof ProgressBar) {
-                nodeIdPrefix = "downloadProgress_";
+            String sanitizedArtifactName = sanitize(getCurrentModel().getArtifactName());
+            if (item instanceof StackPane) {
+                if (progressBar.getId() == null) {
+                    progressBar.setId("downloadProgressBar_" + sanitizedArtifactName);
+                }
+                if (progressText.getId() == null) {
+                    progressText.setId("downloadProgressText_" + sanitizedArtifactName);
+                }
+            } else if (item instanceof Button) {
+                item.setId("downloadButton_" + sanitizedArtifactName);
             }
-
-            if (item.getId() == null) {
-                String newBtnId = nodeIdPrefix + sanitize(getCurrentModel().getArtifactName());
-                item.setId(newBtnId);
-            }
-            System.err.println(item);
             setGraphic(item);
         }
     }

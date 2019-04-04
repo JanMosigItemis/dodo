@@ -5,6 +5,7 @@ import static java.util.Arrays.copyOf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 import de.itemis.jmo.dodo.error.DodoException;
 
@@ -13,21 +14,21 @@ import de.itemis.jmo.dodo.error.DodoException;
  */
 public class StreamDataSource implements DataSource {
 
-    private static final int ALWAYS_START_WRITING_AT_0 = 0;
+    private static final int ALWAYS_START_READING_AT_0 = 0;
 
     private final InputStream stream;
-    private final int blockSizeBytes;
+    private final Iterator<Integer> blockSizeStrategy;
 
     /**
      * Construct a new instance.
      *
      * @param stream - Work with this stream.
-     * @param blockSizeBytes - Each read block is of this size.
+     * @param blockSizeStrategy - Data is read in blocks. Each read op uses one value from this
+     *        iterator for the next block size.
      */
-    public StreamDataSource(InputStream stream, int blockSizeBytes) {
-        checkArgument(blockSizeBytes > 0, "Block size must be greater than zero.");
+    public StreamDataSource(InputStream stream, Iterator<Integer> blockSizeStrategy) {
         this.stream = stream;
-        this.blockSizeBytes = blockSizeBytes;
+        this.blockSizeStrategy = blockSizeStrategy;
     }
 
     @Override
@@ -37,11 +38,13 @@ public class StreamDataSource implements DataSource {
 
     @Override
     public byte[] read() {
-        byte[] buf = new byte[blockSizeBytes];
+        int blockSize = blockSizeStrategy.next();
+        checkArgument(blockSize > 0, "Block size must be greater than zero.");
 
+        byte[] buf = new byte[blockSize];
         int byteCount = 0;
         try {
-            byteCount = stream.readNBytes(buf, ALWAYS_START_WRITING_AT_0, blockSizeBytes);
+            byteCount = stream.readNBytes(buf, ALWAYS_START_READING_AT_0, blockSize);
         } catch (IOException e) {
             throw new DodoException("Encountered error while reading from stream.", e);
         }

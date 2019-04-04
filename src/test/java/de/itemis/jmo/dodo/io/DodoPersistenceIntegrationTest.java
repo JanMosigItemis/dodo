@@ -24,6 +24,7 @@ import java.nio.file.Path;
 
 import de.itemis.jmo.dodo.error.DodoException;
 import de.itemis.jmo.dodo.model.DodoPersistence;
+import de.itemis.jmo.dodo.util.InfiniteIterationOf;
 
 public class DodoPersistenceIntegrationTest {
 
@@ -117,7 +118,7 @@ public class DodoPersistenceIntegrationTest {
         // Mocking generic types with mockito cannot be done in a compiler safe way.
         @SuppressWarnings("unchecked")
         ProgressListener<Long> listener = mock(ProgressListener.class);
-        dataSourceMock = new StreamDataSource(new ByteArrayInputStream(DOWNLOAD_BYTES), DOWNLOAD_BYTES.length / 4);
+        dataSourceMock = new StreamDataSource(new ByteArrayInputStream(DOWNLOAD_BYTES), new InfiniteIterationOf(DOWNLOAD_BYTES.length / 4));
         underTest.write(dataSourceMock, targetPath, listener);
 
         InOrder order = Mockito.inOrder(listener);

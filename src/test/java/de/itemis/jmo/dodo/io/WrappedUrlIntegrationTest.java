@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 
+import de.itemis.jmo.dodo.tests.util.DownloadBlockSizeStrategyForTests;
 import de.itemis.jmo.dodo.tests.util.FakeServer;
 
 public class WrappedUrlIntegrationTest {
@@ -27,7 +28,7 @@ public class WrappedUrlIntegrationTest {
 
     @BeforeAll
     public static void setUpStatic() throws Exception {
-        FAKE_SERVER = new FakeServer();
+        FAKE_SERVER = new FakeServer(new DownloadBlockSizeStrategyForTests());
         TEST_URL = FAKE_SERVER.provide(ARTIFACT).toURL();
     }
 

@@ -16,6 +16,7 @@ import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.model.FakeCellValueFactory;
 import de.itemis.jmo.dodo.parsing.JsonScriptParser;
 import de.itemis.jmo.dodo.parsing.StringParser;
+import de.itemis.jmo.dodo.util.InfiniteIterationOf;
 import de.itemis.jmo.dodo.util.NativeOsDialogs;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -39,6 +40,8 @@ import javafx.stage.StageStyle;
  */
 public class DodoApp extends Application {
 
+    private static final int DEFAULT_BLOCK_SIZE_BYTES = 8 * 1024;
+
     private final TableView<DownloadEntry> itemTable = new TableView<DownloadEntry>();
     private final ObservableList<DownloadEntry> items = FXCollections.observableArrayList();
     private final DodoSystemDialogs systemDialogs;
@@ -52,7 +55,7 @@ public class DodoApp extends Application {
      */
     public DodoApp() {
         systemDialogs = new NativeOsDialogs();
-        scriptParser = new JsonScriptParser(new InternetDownloadFactory());
+        scriptParser = new JsonScriptParser(new InternetDownloadFactory(new InfiniteIterationOf(DEFAULT_BLOCK_SIZE_BYTES)));
         persistence = new DodoPersistence();
     }
 

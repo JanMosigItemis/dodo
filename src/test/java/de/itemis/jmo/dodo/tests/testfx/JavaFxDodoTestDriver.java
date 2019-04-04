@@ -13,6 +13,7 @@ import static org.testfx.assertions.api.Assertions.assertThat;
 import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.BeforeEach;
 import org.testfx.assertions.api.Assertions;
 
 import java.io.IOException;
@@ -28,10 +29,12 @@ import de.itemis.jmo.dodo.model.DownloadEntry;
 import de.itemis.jmo.dodo.model.DownloadScript;
 import de.itemis.jmo.dodo.parsing.JsonScriptParser;
 import de.itemis.jmo.dodo.parsing.StringParser;
+import de.itemis.jmo.dodo.tests.util.DownloadBlockSizeStrategyForTests;
 import de.itemis.jmo.dodo.tests.util.FakeNativeDialogs;
 import de.itemis.jmo.dodo.tests.util.FakeServer;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
@@ -39,15 +42,16 @@ import javafx.stage.Stage;
  */
 public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoUiTestDriver {
 
+    private static final DownloadBlockSizeStrategyForTests DOWNLOAD_BLOCK_SIZE_STRATEGY = new DownloadBlockSizeStrategyForTests();
     /*
      * Managed in a static way in order to safe test startup / tear down time. By doing it static,
      * the server has to be started / stopped only once. Downside: Test isolation is a bit weaker by
      * reusing the server in between tests.
      */
-    private static final FakeServer FAKE_SERVER = new FakeServer();
+    private static final FakeServer FAKE_SERVER = new FakeServer(DOWNLOAD_BLOCK_SIZE_STRATEGY);
 
     private final FakeNativeDialogs fakeDialogs = new FakeNativeDialogs();
-    private final StringParser<DownloadScript> scriptParser = new JsonScriptParser(new InternetDownloadFactory());
+    private final StringParser<DownloadScript> scriptParser = new JsonScriptParser(new InternetDownloadFactory(DOWNLOAD_BLOCK_SIZE_STRATEGY));
     private final Persistence persistence = new DodoPersistence();
 
     private Path tmpDir;
@@ -64,6 +68,11 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
     public void afterAll() {
         FAKE_SERVER.stop();
         super.afterAll();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        DOWNLOAD_BLOCK_SIZE_STRATEGY.reset();
     }
 
     @Override
@@ -152,13 +161,19 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
     }
 
     @Override
-    public void assertDownloadProgressDisplayed(String artifactName, double expectedPercentage) {
-        ProgressBar progressBar = lookup("#downloadProgress_" + sanitize(artifactName)).queryAs(ProgressBar.class);
-        await().untilAsserted(() -> assertThat(progressBar.getProgress() * 100).isEqualTo(expectedPercentage));
+    public void assertDownloadProgressBarAt(String artifactName, int expectedPercentage) {
+        ProgressBar progressBar = lookup("#downloadProgressBar_" + sanitize(artifactName)).queryAs(ProgressBar.class);
+        await().untilAsserted(() -> assertThat(progressBar.getProgress() * 100).isEqualTo(Double.valueOf(expectedPercentage + "")));
     }
 
     @Override
-    public void letDownloadStallAt(String artifactName, double percentage) {
+    public void assertDownloadProgressText(String artifactName, String expectedText) {
+        Text progressText = lookup("#downloadProgressText_" + sanitize(artifactName)).queryAs(Text.class);
+        await().untilAsserted(() -> assertThat(progressText.getText()).isEqualTo(expectedText));
+    }
+
+    @Override
+    public void letDownloadStallAt(String artifactName, int percentage) {
         FAKE_SERVER.becomeStall(artifactName, percentage);
     }
 

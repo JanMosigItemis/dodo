@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -24,10 +25,17 @@ public class InternetDownloadFactory implements DownloadFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternetDownloadFactory.class);
 
-    private static final Map<String, Function<WrappedUrl, DodoDownload>> ACCEPTED_INTERNET_PROTOCOLS = new HashMap<>();
-    static {
-        ACCEPTED_INTERNET_PROTOCOLS.put("http", url -> new HttpDownload(url));
-        ACCEPTED_INTERNET_PROTOCOLS.put("https", url -> new HttpDownload(url));
+    private final Map<String, Function<WrappedUrl, DodoDownload>> ACCEPTED_INTERNET_PROTOCOLS = new HashMap<>();
+
+    /**
+     * Create a new instance.
+     *
+     * @param downloadBlockSizeStrategy - Created {@link DodoDownload downloads} will use this
+     *        strategy in order to select the block size of one read operation.
+     */
+    public InternetDownloadFactory(Iterator<Integer> downloadBlockSizeStrategy) {
+        ACCEPTED_INTERNET_PROTOCOLS.put("http", url -> new HttpDownload(url, downloadBlockSizeStrategy));
+        ACCEPTED_INTERNET_PROTOCOLS.put("https", url -> new HttpDownload(url, downloadBlockSizeStrategy));
     }
 
     @Override

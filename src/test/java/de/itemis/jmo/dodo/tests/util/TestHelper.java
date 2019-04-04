@@ -6,6 +6,8 @@ import com.google.common.base.Throwables;
 
 import org.junit.Assert;
 
+import java.text.DecimalFormat;
+
 import de.itemis.jmo.dodo.util.InstantiationNotAllowedException;
 
 /**
@@ -51,5 +53,13 @@ public final class TestHelper {
 
     private static String extractCauseMessage(Throwable cause) {
         return cause.getMessage() == null ? "w/o further information" : cause.getMessage();
+    }
+
+    /**
+     * Depending on the platform's default locale, the separator might not be '.' but something
+     * else.
+     */
+    public static String getLocalizedDecimalSeparator() {
+        return "" + ((DecimalFormat) DecimalFormat.getInstance()).getDecimalFormatSymbols().getDecimalSeparator();
     }
 }
