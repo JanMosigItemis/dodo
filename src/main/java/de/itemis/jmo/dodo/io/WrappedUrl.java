@@ -33,7 +33,9 @@ public class WrappedUrl {
      * @throws IOException
      */
     public InputStream openStream() throws IOException {
-        return url.openStream();
+        URLConnection openConnection = url.openConnection();
+        openConnection.setReadTimeout(3000);
+        return openConnection.getInputStream();
     }
 
     /**
