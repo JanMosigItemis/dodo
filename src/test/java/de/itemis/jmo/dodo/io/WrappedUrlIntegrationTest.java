@@ -28,7 +28,7 @@ public class WrappedUrlIntegrationTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        TEST_URL = FAKE_SERVER.provide(ARTIFACT).toURL();
+        TEST_URL = FAKE_SERVER.provide(ARTIFACT).getArtifactUri().toURL();
         underTest = new WrappedUrl(TEST_URL);
     }
 

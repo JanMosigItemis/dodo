@@ -21,7 +21,7 @@ import de.itemis.jmo.dodo.error.DodoException;
  * A {@link DownloadFactory} that can handle typical Internet download protocols, e. g. HTTP and
  * HTTPS.
  */
-public class InternetDownloadFactory implements DownloadFactory {
+public class InternetDownloadFactory implements Function<URI, DodoDownload> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternetDownloadFactory.class);
 
@@ -39,7 +39,7 @@ public class InternetDownloadFactory implements DownloadFactory {
     }
 
     @Override
-    public DodoDownload createDownload(URI uri) {
+    public DodoDownload apply(URI uri) {
         String scheme = nullToEmpty(uri.getScheme());
         WrappedUrl downloadUrl = null;
 

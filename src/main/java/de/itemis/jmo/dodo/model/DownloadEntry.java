@@ -11,6 +11,7 @@ import de.itemis.jmo.dodo.error.DodoException;
 import de.itemis.jmo.dodo.error.DodoWarning;
 import de.itemis.jmo.dodo.io.DataSource;
 import de.itemis.jmo.dodo.io.DodoDownload;
+import de.itemis.jmo.dodo.io.DownloadResult;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.io.ProgressListener;
 
@@ -52,17 +53,33 @@ public class DownloadEntry {
      * @param path - Store all downloaded data into this file.
      * @throws DodoException - In case of any kind of (IO) error during download or writing.
      */
-    public void download(Path targetPath) {
+    public DownloadResult download(Path targetPath) {
+        var download = downloadScript.createDownload();
+
+        writeDownloadToPersistence(targetPath, download);
+
+        var validator = downloadScript.createHashCodeValidator();
+        DataSource dataSource = persistence.read(targetPath);
+        boolean hashCodeValidationResult = validator.verify(dataSource);
+        try {
+            dataSource.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        downloadFinished = true;
+
+        return new DownloadResult(hashCodeValidationResult);
+    }
+
+    private void writeDownloadToPersistence(Path targetPath, DodoDownload download) {
         DataSource dataSource = null;
         try {
-            DodoDownload download = downloadScript.createDownload();
             dataSource = download.getDataSource();
             persistence.write(dataSource, targetPath, writtenBytes -> {
                 long totalBytes = download.getSize();
                 double percentage = ((double) writtenBytes / totalBytes) * 100;
                 updateDownloadProgress(percentage);
             });
-            downloadFinished = true;
         } finally {
             try {
                 if (dataSource != null) {

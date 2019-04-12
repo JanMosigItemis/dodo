@@ -5,25 +5,33 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.net.URI;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-import de.itemis.jmo.dodo.io.DownloadFactory;
+import de.itemis.jmo.dodo.io.DodoDownload;
 import de.itemis.jmo.dodo.model.DownloadScript;
+import de.itemis.jmo.dodo.validation.HashCodeValidator;
 
 /**
  * A JSON based implementation of a {@link StringParser}. Understands JSON only.
  */
 public class JsonScriptParser implements StringParser<DownloadScript> {
 
-    private final DownloadFactory downloadFactory;
+    private final Function<URI, DodoDownload> downloadFactory;
+    private final BiFunction<Supplier<DodoDownload>, String, HashCodeValidator> validatorFactory;
 
     /**
      * Create a new instance.
      *
-     * @param downloadFactory - Created {@link DownloadScript} entities will use this
-     *        {@link DownloadFactory} in order to handle downloads.
+     * @param downloadFactory - Used by the created {@link DownloadScript} instances for creating
+     *        downloads.
+     * @param validatorFactory - Used by the created {@link DownloadScript} instances for creating
+     *        download hash code validators.
      */
-    public JsonScriptParser(DownloadFactory downloadFactory) {
+    public JsonScriptParser(Function<URI, DodoDownload> downloadFactory, BiFunction<Supplier<DodoDownload>, String, HashCodeValidator> validatorFactory) {
         this.downloadFactory = downloadFactory;
+        this.validatorFactory = validatorFactory;
     }
 
     @Override
@@ -37,6 +45,10 @@ public class JsonScriptParser implements StringParser<DownloadScript> {
         }
 
         URI downloadUri = URI.create(object.get("uri").toString());
-        return new DownloadScript(() -> downloadFactory.createDownload(downloadUri));
+        String algorithmName = object.get("hashAlgorithm").toString();
+        URI hashCodeUri = URI.create(object.get("hashUri").toString());
+
+        return new DownloadScript(() -> downloadFactory.apply(downloadUri),
+            () -> validatorFactory.apply(() -> downloadFactory.apply(hashCodeUri), algorithmName));
     }
 }

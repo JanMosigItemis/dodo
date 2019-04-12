@@ -3,6 +3,7 @@ package de.itemis.jmo.dodo.model;
 import java.util.function.Supplier;
 
 import de.itemis.jmo.dodo.io.DodoDownload;
+import de.itemis.jmo.dodo.validation.HashCodeValidator;
 
 /**
  * <p>
@@ -15,14 +16,17 @@ import de.itemis.jmo.dodo.io.DodoDownload;
 public class DownloadScript {
 
     private final Supplier<DodoDownload> downloadSup;
+    private final Supplier<HashCodeValidator> hashCodeValidatorSup;
 
     /**
      * Create a new instance.
      *
      * @param downloadSup - Creates new download instances.
+     * @param hashCodeValidatorSup - Creates new {@link HashCodeValidator} instances.
      */
-    public DownloadScript(Supplier<DodoDownload> downloadSup) {
+    public DownloadScript(Supplier<DodoDownload> downloadSup, Supplier<HashCodeValidator> hashCodeValidatorSup) {
         this.downloadSup = downloadSup;
+        this.hashCodeValidatorSup = hashCodeValidatorSup;
     }
 
     /**
@@ -33,5 +37,14 @@ public class DownloadScript {
      */
     public DodoDownload createDownload() {
         return downloadSup.get();
+    }
+
+    /**
+     * Provides a validator for the downloaded data.
+     *
+     * @return a new HashCodeValidator instance.
+     */
+    public HashCodeValidator createHashCodeValidator() {
+        return hashCodeValidatorSup.get();
     }
 }

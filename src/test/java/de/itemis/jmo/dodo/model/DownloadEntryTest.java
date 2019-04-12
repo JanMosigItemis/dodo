@@ -28,8 +28,10 @@ import java.nio.file.Paths;
 import de.itemis.jmo.dodo.error.DodoWarning;
 import de.itemis.jmo.dodo.io.DataSource;
 import de.itemis.jmo.dodo.io.DodoDownload;
+import de.itemis.jmo.dodo.io.DownloadResult;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.io.ProgressListener;
+import de.itemis.jmo.dodo.validation.HashCodeValidator;
 
 @RunWith(JUnitPlatform.class)
 public class DownloadEntryTest {
@@ -39,6 +41,7 @@ public class DownloadEntryTest {
     private static final Path FAKE_PATH = Paths.get(DownloadEntryTest.class.getSimpleName() + "FakePath");
 
     private DownloadScript downloadScriptMock;
+    private HashCodeValidator hashCodeValidatorMock;
     private Persistence persistenceMock;
 
     private DodoDownload downloadMock;
@@ -49,11 +52,14 @@ public class DownloadEntryTest {
     @BeforeEach
     public void setUp() {
         downloadScriptMock = mock(DownloadScript.class);
+        hashCodeValidatorMock = mock(HashCodeValidator.class);
         persistenceMock = mock(Persistence.class);
         downloadMock = mock(DodoDownload.class);
         dataSourceMock = mock(DataSource.class);
 
+        when(persistenceMock.read(FAKE_PATH)).thenReturn(dataSourceMock);
         when(downloadScriptMock.createDownload()).thenReturn(downloadMock);
+        when(downloadScriptMock.createHashCodeValidator()).thenReturn(hashCodeValidatorMock);
         when(downloadMock.getDataSource()).thenReturn(dataSourceMock);
         when(downloadMock.getSize()).thenReturn(ARTIFACT_SIZE);
 
@@ -148,6 +154,29 @@ public class DownloadEntryTest {
         order.verify(listenerMock).updateProgress(eq(100.0));
     }
 
+    @Test
+    public void hashCode_validation_is_done_during_download() {
+        download();
+
+        verify(hashCodeValidatorMock).verify(dataSourceMock);
+    }
+
+    @Test
+    public void download_returns_a_download_result() {
+        var result = download();
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void when_hashCode_validation_fails_download_result_lists_this_error() {
+        when(hashCodeValidatorMock.verify(dataSourceMock)).thenReturn(false);
+
+        var result = download();
+
+        assertThat(result.hashIsValid()).as("unexpected hash code verification result").isFalse();
+    }
+
     /*
      * ##########################
      *
@@ -156,8 +185,8 @@ public class DownloadEntryTest {
      * ##########################
      */
 
-    private void download() {
-        underTest.download(FAKE_PATH);
+    private DownloadResult download() {
+        return underTest.download(FAKE_PATH);
     }
 
     private ThrowingCallable downloadOp() {

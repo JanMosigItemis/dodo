@@ -40,7 +40,7 @@ public class HttpDownloadTest {
 
     @Test
     public void get_data_source_returns_a_data_source() {
-        StreamDataSource result = underTest.getDataSource();
+        VariableBlockSizeStreamDataSource result = underTest.getDataSource();
 
         assertThat(result).isNotNull();
     }

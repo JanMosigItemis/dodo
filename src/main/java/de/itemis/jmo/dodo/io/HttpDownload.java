@@ -23,7 +23,7 @@ public class HttpDownload implements DodoDownload {
     }
 
     @Override
-    public StreamDataSource getDataSource() {
+    public VariableBlockSizeStreamDataSource getDataSource() {
         InputStream inputStream = null;
         try {
             inputStream = downloadUrl.openStream();
@@ -31,7 +31,7 @@ public class HttpDownload implements DodoDownload {
             throw new DodoException("Encountered error while opening a stream.", e);
         }
 
-        return new StreamDataSource(inputStream, blockSizeStrategy);
+        return new VariableBlockSizeStreamDataSource(inputStream, blockSizeStrategy);
     }
 
     @Override
