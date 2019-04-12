@@ -43,12 +43,18 @@ public final class FakeServer {
     /**
      * Make the artifact with the specified name available for download.
      *
-     * @return {@link URI} of the artifact.
+     * @return A new instance of {@link FakeServerDownload} along with all necessary information to
+     *         actually download the artifact.
      */
-    public URI provide(String artifactName) {
+    public FakeServerDownload provide(String artifactName) {
+        String artifactHashCodeName = artifactName + ".hashcode";
         lazySetupHttpServer();
         unregisterDownloadStub(artifactName);
-        return registerDownloadStub(artifactName);
+        unregisterDownloadStub(artifactHashCodeName);
+        URI artifactUri = registerDownloadStub(artifactName);
+        URI artifactHashCodeUri = registerDownloadStub(artifactHashCodeName);
+
+        return new FakeServerDownload(artifactUri, artifactHashCodeName, artifactHashCodeUri);
     }
 
     /**

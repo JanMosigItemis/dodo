@@ -76,6 +76,8 @@ public class DodoUiTest {
         DODO.addDownloadSource(ARTIFACT_ONE_NAME);
         DODO.initiateDownload(ARTIFACT_ONE_NAME);
         DODO.waitUntilDownloadFinished(ARTIFACT_ONE_NAME);
+        DODO.waitUntilDownloadFinished(ARTIFACT_ONE_NAME + ".hashcode");
+
         DODO.assertDownloadSuccessIndicated(ARTIFACT_ONE_NAME);
     }
 

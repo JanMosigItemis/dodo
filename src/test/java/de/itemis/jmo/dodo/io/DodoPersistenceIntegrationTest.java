@@ -1,5 +1,6 @@
 package de.itemis.jmo.dodo.io;
 
+import static de.itemis.jmo.dodo.io.BaseProgressListener.nop;
 import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.DODO_EXCEPTION;
 import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.EXPECTED_IO_EXCEPTION;
 import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.assertThatThrownBy;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -20,10 +22,13 @@ import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import de.itemis.jmo.dodo.error.DodoException;
 import de.itemis.jmo.dodo.model.DodoPersistence;
+import de.itemis.jmo.dodo.tests.util.ExpectedExceptions;
 import de.itemis.jmo.dodo.util.InfiniteIterationOf;
 
 public class DodoPersistenceIntegrationTest {
@@ -48,6 +53,11 @@ public class DodoPersistenceIntegrationTest {
 
         targetPath = constructTargetPath(tmpDir);
         underTest = new DodoPersistence();
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        Files.deleteIfExists(targetPath);
     }
 
     @Test
@@ -118,14 +128,33 @@ public class DodoPersistenceIntegrationTest {
         // Mocking generic types with mockito cannot be done in a compiler safe way.
         @SuppressWarnings("unchecked")
         ProgressListener<Long> listener = mock(ProgressListener.class);
-        dataSourceMock = new StreamDataSource(new ByteArrayInputStream(DOWNLOAD_BYTES), new InfiniteIterationOf(DOWNLOAD_BYTES.length / 4));
-        underTest.write(dataSourceMock, targetPath, listener);
+        dataSourceMock = new VariableBlockSizeStreamDataSource(new ByteArrayInputStream(DOWNLOAD_BYTES), new InfiniteIterationOf(DOWNLOAD_BYTES.length / 4));
+
+        write(listener);
 
         InOrder order = Mockito.inOrder(listener);
         order.verify(listener).updateProgress(3L);
         order.verify(listener).updateProgress(6L);
         order.verify(listener).updateProgress(9L);
         order.verify(listener).updateProgress(12L);
+    }
+
+    @Test
+    public void read_returns_data_source() throws Exception {
+        Files.createFile(targetPath);
+
+        try (var result = underTest.read(targetPath)) {
+            assertThat(result).as("op did not return expected result").isNotNull();
+        }
+    }
+
+    @Test
+    public void read_with_non_existing_path_throws_dodo_exception_with_no_such_file_exception_as_cause() {
+        String fakePathStr = "fakePath";
+        Path fakePath = Paths.get(fakePathStr);
+        DodoException expectedException = new DodoException("Could not create data source", new NoSuchFileException(fakePathStr));
+
+        ExpectedExceptions.assertThatThrownBy(() -> underTest.read(fakePath), expectedException);
     }
 
     /*
@@ -137,7 +166,11 @@ public class DodoPersistenceIntegrationTest {
      */
 
     private void write() {
-        underTest.write(dataSourceMock, targetPath);
+        write(nop());
+    }
+
+    private void write(ProgressListener<Long> listener) {
+        underTest.write(dataSourceMock, targetPath, listener);
     }
 
     private Path constructTargetPath(Path tmpDir) {

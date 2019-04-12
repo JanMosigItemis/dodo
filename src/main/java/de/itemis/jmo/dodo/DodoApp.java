@@ -18,6 +18,7 @@ import de.itemis.jmo.dodo.parsing.JsonScriptParser;
 import de.itemis.jmo.dodo.parsing.StringParser;
 import de.itemis.jmo.dodo.util.InfiniteIterationOf;
 import de.itemis.jmo.dodo.util.NativeOsDialogs;
+import de.itemis.jmo.dodo.validation.HashCodeValidatorFactory;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -55,7 +56,7 @@ public class DodoApp extends Application {
      */
     public DodoApp() {
         systemDialogs = new NativeOsDialogs();
-        scriptParser = new JsonScriptParser(new InternetDownloadFactory(new InfiniteIterationOf(DEFAULT_BLOCK_SIZE_BYTES)));
+        scriptParser = new JsonScriptParser(new InternetDownloadFactory(new InfiniteIterationOf(DEFAULT_BLOCK_SIZE_BYTES)), new HashCodeValidatorFactory());
         persistence = new DodoPersistence();
     }
 

@@ -9,11 +9,14 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Supplier;
 
 import de.itemis.jmo.dodo.io.DodoDownload;
+import de.itemis.jmo.dodo.validation.HashCodeValidator;
 
 public class DownloadScriptTest {
 
     private DodoDownload downloadMock;
     private Supplier<DodoDownload> downloadSup;
+    private HashCodeValidator hashCodeValidatorMock;
+    private Supplier<HashCodeValidator> hashCodeValidatorSup;
 
     private DownloadScript underTest;
 
@@ -21,14 +24,23 @@ public class DownloadScriptTest {
     public void setUp() {
         downloadMock = mock(DodoDownload.class);
         downloadSup = () -> downloadMock;
+        hashCodeValidatorMock = mock(HashCodeValidator.class);
+        hashCodeValidatorSup = () -> hashCodeValidatorMock;
 
-        underTest = new DownloadScript(downloadSup);
+        underTest = new DownloadScript(downloadSup, hashCodeValidatorSup);
     }
 
     @Test
     public void createDownload_calls_download_create_function() {
-        DodoDownload result = underTest.createDownload();
+        var result = underTest.createDownload();
 
         assertThat(result).as("result of method").isEqualTo(downloadMock);
+    }
+
+    @Test
+    public void createHashValidator_calls_validator_factory_with_specified_algorithm_name() {
+        var result = underTest.createHashCodeValidator();
+
+        assertThat(result).as("result of method").isEqualTo(hashCodeValidatorMock);
     }
 }

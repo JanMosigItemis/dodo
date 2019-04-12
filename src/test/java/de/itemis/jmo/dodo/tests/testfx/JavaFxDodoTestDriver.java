@@ -3,7 +3,6 @@
  */
 package de.itemis.jmo.dodo.tests.testfx;
 
-import static de.itemis.jmo.dodo.tests.util.JsonTestHelper.toDoubleQuotes;
 import static de.itemis.jmo.dodo.tests.util.TestHelper.fail;
 import static de.itemis.jmo.dodo.util.NodeIdSanitizer.sanitize;
 import static java.nio.file.Files.size;
@@ -32,6 +31,8 @@ import de.itemis.jmo.dodo.parsing.StringParser;
 import de.itemis.jmo.dodo.tests.util.DownloadBlockSizeStrategyForTests;
 import de.itemis.jmo.dodo.tests.util.FakeNativeDialogs;
 import de.itemis.jmo.dodo.tests.util.FakeServer;
+import de.itemis.jmo.dodo.tests.util.FakeServerDownload;
+import de.itemis.jmo.dodo.validation.HashCodeValidatorFactory;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
 import javafx.scene.text.Text;
@@ -51,7 +52,8 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
     private static final FakeServer FAKE_SERVER = new FakeServer(DOWNLOAD_BLOCK_SIZE_STRATEGY);
 
     private final FakeNativeDialogs fakeDialogs = new FakeNativeDialogs();
-    private final StringParser<DownloadScript> scriptParser = new JsonScriptParser(new InternetDownloadFactory(DOWNLOAD_BLOCK_SIZE_STRATEGY));
+    private final StringParser<DownloadScript> scriptParser =
+        new JsonScriptParser(new InternetDownloadFactory(DOWNLOAD_BLOCK_SIZE_STRATEGY), new HashCodeValidatorFactory());
     private final Persistence persistence = new DodoPersistence();
 
     private Path tmpDir;
@@ -61,7 +63,7 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
     @Override
     public void beforeAll() {
         super.beforeAll();
-        Awaitility.setDefaultTimeout(5, TimeUnit.SECONDS);
+        Awaitility.setDefaultTimeout(500, TimeUnit.SECONDS);
     }
 
     @Override
@@ -94,12 +96,11 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
 
     @Override
     public void addDownloadSource(String artifactName) {
-        String script = FAKE_SERVER.provide(artifactName).toString();
-        script = toDoubleQuotes("{'uri':'" + script + "'}");
+        FakeServerDownload download = FAKE_SERVER.provide(artifactName);
         clickOn("#dodoMenu");
         clickOn("#addSource");
         lookup("#addSource_artifactName").queryTextInputControl().setText(artifactName);
-        lookup("#addSource_downloadScript").queryTextInputControl().setText(script);
+        lookup("#addSource_downloadScript").queryTextInputControl().setText(download.getDownloadJson());
         clickOn("#addSource_confirm");
         waitForFxEvents();
     }

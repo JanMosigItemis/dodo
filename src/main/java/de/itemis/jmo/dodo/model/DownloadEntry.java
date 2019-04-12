@@ -3,21 +3,27 @@ package de.itemis.jmo.dodo.model;
 
 import static java.util.Objects.requireNonNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.itemis.jmo.dodo.error.DodoException;
-import de.itemis.jmo.dodo.error.DodoWarning;
 import de.itemis.jmo.dodo.io.DataSource;
 import de.itemis.jmo.dodo.io.DodoDownload;
+import de.itemis.jmo.dodo.io.DownloadResult;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.io.ProgressListener;
+import de.itemis.jmo.dodo.validation.HashCodeValidator;
 
 /**
  * An entry of the table of downloadable content.
  */
 public class DownloadEntry {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DownloadEntry.class);
 
     private final String artifactName;
     private final DownloadScript downloadScript;
@@ -52,25 +58,47 @@ public class DownloadEntry {
      * @param path - Store all downloaded data into this file.
      * @throws DodoException - In case of any kind of (IO) error during download or writing.
      */
-    public void download(Path targetPath) {
-        DataSource dataSource = null;
+    public DownloadResult download(Path targetPath) {
+        var download = downloadScript.createDownload();
+        writeDownloadToPersistence(targetPath, download);
+
+        var validator = downloadScript.createHashCodeValidator();
+        var hashCodeValidationResult = verifyDownloadChecksum(targetPath, validator);
+
+        downloadFinished = true;
+
+        return new DownloadResult(hashCodeValidationResult);
+    }
+
+    private void writeDownloadToPersistence(Path targetPath, DodoDownload download) {
+        DataSource dataSource = download.getDataSource();
         try {
-            DodoDownload download = downloadScript.createDownload();
-            dataSource = download.getDataSource();
             persistence.write(dataSource, targetPath, writtenBytes -> {
                 long totalBytes = download.getSize();
                 double percentage = ((double) writtenBytes / totalBytes) * 100;
                 updateDownloadProgress(percentage);
             });
-            downloadFinished = true;
         } finally {
-            try {
-                if (dataSource != null) {
-                    dataSource.close();
-                }
-            } catch (Exception e) {
-                throw new DodoWarning("Could not close data source.", e);
-            }
+            safeClose(dataSource);
+        }
+    }
+
+    private boolean verifyDownloadChecksum(Path targetPath, HashCodeValidator validator) {
+        boolean hashCodeValidationResult = false;
+        DataSource dataSource = persistence.read(targetPath);
+        try {
+            hashCodeValidationResult = validator.verify(dataSource);
+        } finally {
+            safeClose(dataSource);
+        }
+        return hashCodeValidationResult;
+    }
+
+    private void safeClose(DataSource dataSource) {
+        try {
+            dataSource.close();
+        } catch (Exception e) {
+            LOG.warn("Encountered unexpected error while closing dataSource.", e);
         }
     }
 

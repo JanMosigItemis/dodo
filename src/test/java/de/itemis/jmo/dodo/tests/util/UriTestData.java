@@ -23,6 +23,8 @@ public final class UriTestData {
     }
 
     public static final URI VALID_URI_NO_SCHEME = URI.create("validUri");
+    public static final URI OTHER_VALID_URI_NO_SCHEME = URI.create("otherValidUri");
+
     public static final URI URI_BUT_NO_URL =
         URI.create("http://validUriNoUrl:-1234");
 

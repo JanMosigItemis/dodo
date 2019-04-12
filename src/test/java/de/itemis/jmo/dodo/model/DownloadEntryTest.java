@@ -2,7 +2,6 @@ package de.itemis.jmo.dodo.model;
 
 import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.DODO_EXCEPTION;
 import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.EXPECTED_IO_EXCEPTION;
-import static de.itemis.jmo.dodo.tests.util.ExpectedExceptions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,11 +24,13 @@ import org.mockito.Mockito;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import de.itemis.jmo.dodo.error.DodoWarning;
 import de.itemis.jmo.dodo.io.DataSource;
 import de.itemis.jmo.dodo.io.DodoDownload;
+import de.itemis.jmo.dodo.io.DownloadResult;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.io.ProgressListener;
+import de.itemis.jmo.dodo.tests.util.Console;
+import de.itemis.jmo.dodo.validation.HashCodeValidator;
 
 @RunWith(JUnitPlatform.class)
 public class DownloadEntryTest {
@@ -38,23 +39,31 @@ public class DownloadEntryTest {
     private static final long ARTIFACT_SIZE = 100;
     private static final Path FAKE_PATH = Paths.get(DownloadEntryTest.class.getSimpleName() + "FakePath");
 
+    Console console = new Console();
+
     private DownloadScript downloadScriptMock;
+    private HashCodeValidator hashCodeValidatorMock;
     private Persistence persistenceMock;
 
     private DodoDownload downloadMock;
-    private DataSource dataSourceMock;
+    private DataSource downloadDataSourceMock;
+    private DataSource validationDataSourceMock;
 
     private DownloadEntry underTest;
 
     @BeforeEach
     public void setUp() {
         downloadScriptMock = mock(DownloadScript.class);
+        hashCodeValidatorMock = mock(HashCodeValidator.class);
         persistenceMock = mock(Persistence.class);
         downloadMock = mock(DodoDownload.class);
-        dataSourceMock = mock(DataSource.class);
+        downloadDataSourceMock = mock(DataSource.class);
+        validationDataSourceMock = mock(DataSource.class);
 
+        when(persistenceMock.read(FAKE_PATH)).thenReturn(validationDataSourceMock);
         when(downloadScriptMock.createDownload()).thenReturn(downloadMock);
-        when(downloadMock.getDataSource()).thenReturn(dataSourceMock);
+        when(downloadScriptMock.createHashCodeValidator()).thenReturn(hashCodeValidatorMock);
+        when(downloadMock.getDataSource()).thenReturn(downloadDataSourceMock);
         when(downloadMock.getSize()).thenReturn(ARTIFACT_SIZE);
 
         underTest = new DownloadEntry(ARTIFACT_NAME, downloadScriptMock, persistenceMock);
@@ -77,34 +86,36 @@ public class DownloadEntryTest {
     }
 
     @Test
-    public void download_passesDataSource_to_persistence() {
+    public void download_passesDownloadDataSource_to_persistence() {
         download();
 
-        verify(persistenceMock).write(same(dataSourceMock), same(FAKE_PATH), anyProgressListener());
+        verify(persistenceMock).write(same(downloadDataSourceMock), same(FAKE_PATH), anyProgressListener());
     }
 
     @Test
     public void persistence_dodoexceptions_are_propagated_as_is() {
-        doThrow(DODO_EXCEPTION).when(persistenceMock).write(same(dataSourceMock), same(FAKE_PATH), anyProgressListener());
+        doThrow(DODO_EXCEPTION).when(persistenceMock).write(same(downloadDataSourceMock), same(FAKE_PATH), anyProgressListener());
 
         assertThatThrownBy(downloadOp()).isSameAs(DODO_EXCEPTION);
     }
 
     @Test
-    public void persistence_dodoexceptions_cause_source_to_be_closed() throws Exception {
-        doThrow(DODO_EXCEPTION).when(persistenceMock).write(same(dataSourceMock), same(FAKE_PATH), anyProgressListener());
+    public void persistence_dodoexceptions_cause_downloadSource_to_be_closed() throws Exception {
+        doThrow(DODO_EXCEPTION).when(persistenceMock).write(same(downloadDataSourceMock), same(FAKE_PATH), anyProgressListener());
 
         assertThatThrownBy(downloadOp());
 
-        verify(dataSourceMock).close();
+        verify(downloadDataSourceMock).close();
     }
 
     @Test
-    public void exceptions_during_source_close_become_warnings() throws Exception {
-        DodoWarning expectedWarning = new DodoWarning("Could not close data source.", EXPECTED_IO_EXCEPTION);
-        doThrow(EXPECTED_IO_EXCEPTION).when(dataSourceMock).close();
+    public void exceptions_during_download_source_close_are_logged() throws Exception {
+        doThrow(EXPECTED_IO_EXCEPTION).when(downloadDataSourceMock).close();
 
-        assertThatThrownBy(downloadOp(), expectedWarning);
+        download();
+
+        console.anyLineContains("Encountered unexpected error while closing dataSource.");
+        console.anyLineContains(EXPECTED_IO_EXCEPTION.getMessage());
     }
 
     @Test
@@ -116,7 +127,7 @@ public class DownloadEntryTest {
             ProgressListener<Long> persistenceListener = invocation.getArgument(2);
             persistenceListener.updateProgress(ARTIFACT_SIZE);
             return null;
-        }).when(persistenceMock).write(same(dataSourceMock), same(FAKE_PATH), anyProgressListener());
+        }).when(persistenceMock).write(same(downloadDataSourceMock), same(FAKE_PATH), anyProgressListener());
         underTest.addDownloadListener(listenerMock);
 
         download();
@@ -136,7 +147,7 @@ public class DownloadEntryTest {
                 persistenceListener.updateProgress((ARTIFACT_SIZE / stepCount) * i);
             }
             return null;
-        }).when(persistenceMock).write(same(dataSourceMock), same(FAKE_PATH), anyProgressListener());
+        }).when(persistenceMock).write(same(downloadDataSourceMock), same(FAKE_PATH), anyProgressListener());
         underTest.addDownloadListener(listenerMock);
 
         download();
@@ -148,6 +159,62 @@ public class DownloadEntryTest {
         order.verify(listenerMock).updateProgress(eq(100.0));
     }
 
+    @Test
+    public void hashCode_validation_is_done_during_download() {
+        download();
+
+        verify(hashCodeValidatorMock).verify(validationDataSourceMock);
+    }
+
+    @Test
+    public void download_returns_a_download_result() {
+        var result = download();
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void when_hashCode_validation_fails_download_result_lists_this_error() {
+        when(hashCodeValidatorMock.verify(downloadDataSourceMock)).thenReturn(false);
+
+        var result = download();
+
+        assertThat(result.hashIsValid()).as("unexpected hash code verification result").isFalse();
+    }
+
+    @Test
+    public void when_validation_is_finished_data_source_is_closed() throws Exception {
+        download();
+
+        verify(validationDataSourceMock).close();
+    }
+
+    @Test
+    public void dodoexceptions_during_read_are_propagated_as_is() {
+        doThrow(DODO_EXCEPTION).when(persistenceMock).read(same(FAKE_PATH));
+
+        assertThatThrownBy(downloadOp()).isSameAs(DODO_EXCEPTION);
+    }
+
+    @Test
+    public void verify_dodoexceptions_cause_validation_source_to_be_closed() throws Exception {
+        doThrow(DODO_EXCEPTION).when(hashCodeValidatorMock).verify(same(validationDataSourceMock));
+
+        assertThatThrownBy(downloadOp());
+
+        verify(validationDataSourceMock).close();
+    }
+
+    @Test
+    public void error_during_validation_source_close_is_logged() throws Exception {
+        doThrow(EXPECTED_IO_EXCEPTION).when(validationDataSourceMock).close();
+
+        download();
+
+        console.anyLineContains("Encountered unexpected error while closing dataSource.");
+        console.anyLineContains(EXPECTED_IO_EXCEPTION.getMessage());
+    }
+
     /*
      * ##########################
      *
@@ -156,8 +223,8 @@ public class DownloadEntryTest {
      * ##########################
      */
 
-    private void download() {
-        underTest.download(FAKE_PATH);
+    private DownloadResult download() {
+        return underTest.download(FAKE_PATH);
     }
 
     private ThrowingCallable downloadOp() {
