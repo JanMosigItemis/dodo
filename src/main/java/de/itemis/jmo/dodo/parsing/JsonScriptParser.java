@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 import de.itemis.jmo.dodo.io.DodoDownload;
 import de.itemis.jmo.dodo.model.DownloadScript;
-import de.itemis.jmo.dodo.validation.HashCodeValidator;
+import de.itemis.jmo.dodo.validation.ChecksumValidator;
 
 /**
  * A JSON based implementation of a {@link StringParser}. Understands JSON only.
@@ -19,7 +19,7 @@ import de.itemis.jmo.dodo.validation.HashCodeValidator;
 public class JsonScriptParser implements StringParser<DownloadScript> {
 
     private final Function<URI, DodoDownload> downloadFactory;
-    private final BiFunction<Supplier<DodoDownload>, String, HashCodeValidator> validatorFactory;
+    private final BiFunction<Supplier<DodoDownload>, String, ChecksumValidator> validatorFactory;
 
     /**
      * Create a new instance.
@@ -29,7 +29,7 @@ public class JsonScriptParser implements StringParser<DownloadScript> {
      * @param validatorFactory - Used by the created {@link DownloadScript} instances for creating
      *        download hash code validators.
      */
-    public JsonScriptParser(Function<URI, DodoDownload> downloadFactory, BiFunction<Supplier<DodoDownload>, String, HashCodeValidator> validatorFactory) {
+    public JsonScriptParser(Function<URI, DodoDownload> downloadFactory, BiFunction<Supplier<DodoDownload>, String, ChecksumValidator> validatorFactory) {
         this.downloadFactory = downloadFactory;
         this.validatorFactory = validatorFactory;
     }
@@ -46,9 +46,9 @@ public class JsonScriptParser implements StringParser<DownloadScript> {
 
         URI downloadUri = URI.create(object.get("uri").toString());
         String algorithmName = object.get("hashAlgorithm").toString();
-        URI hashCodeUri = URI.create(object.get("hashUri").toString());
+        URI checksumUri = URI.create(object.get("hashUri").toString());
 
         return new DownloadScript(() -> downloadFactory.apply(downloadUri),
-            () -> validatorFactory.apply(() -> downloadFactory.apply(hashCodeUri), algorithmName));
+            () -> validatorFactory.apply(() -> downloadFactory.apply(checksumUri), algorithmName));
     }
 }

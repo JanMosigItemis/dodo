@@ -32,7 +32,8 @@ import de.itemis.jmo.dodo.tests.util.DownloadBlockSizeStrategyForTests;
 import de.itemis.jmo.dodo.tests.util.FakeNativeDialogs;
 import de.itemis.jmo.dodo.tests.util.FakeServer;
 import de.itemis.jmo.dodo.tests.util.FakeServerDownload;
-import de.itemis.jmo.dodo.validation.HashCodeValidatorFactory;
+import de.itemis.jmo.dodo.validation.ChecksumValidatorFactory;
+import de.itemis.jmo.dodo.validation.ChecksumValidatorPluginRegistry;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
 import javafx.scene.text.Text;
@@ -53,7 +54,7 @@ public class JavaFxDodoTestDriver extends JavaFxBasedTestDriver implements DodoU
 
     private final FakeNativeDialogs fakeDialogs = new FakeNativeDialogs();
     private final StringParser<DownloadScript> scriptParser =
-        new JsonScriptParser(new InternetDownloadFactory(DOWNLOAD_BLOCK_SIZE_STRATEGY), new HashCodeValidatorFactory());
+        new JsonScriptParser(new InternetDownloadFactory(DOWNLOAD_BLOCK_SIZE_STRATEGY), new ChecksumValidatorPluginRegistry(new ChecksumValidatorFactory()));
     private final Persistence persistence = new DodoPersistence();
 
     private Path tmpDir;

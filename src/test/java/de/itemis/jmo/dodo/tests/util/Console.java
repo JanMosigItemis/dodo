@@ -2,6 +2,7 @@ package de.itemis.jmo.dodo.tests.util;
 
 import static de.itemis.jmo.dodo.util.Sneaky.throwThat;
 import static java.nio.file.Files.readAllBytes;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -208,6 +209,15 @@ public final class Console implements AutoCloseable, AfterTestExecutionCallback 
      */
     public boolean anyLineContains(String line) {
         return internalContains(line, 0) != null;
+    }
+
+    /**
+     * Like {@link #anyLineContains(String)} but does also perfom the assert.
+     *
+     * @throws AssertionError in case no line contains {@code line}.
+     */
+    public void assertAnyLineContains(String line) {
+        assertThat(anyLineContains(line)).as("Console did not contain '" + line + "'").isTrue();
     }
 
     private Integer internalContains(String line, int offset) {

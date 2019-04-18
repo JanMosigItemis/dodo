@@ -21,14 +21,14 @@ import java.util.function.Supplier;
 
 import de.itemis.jmo.dodo.io.DodoDownload;
 import de.itemis.jmo.dodo.model.DownloadScript;
-import de.itemis.jmo.dodo.validation.HashCodeValidator;
+import de.itemis.jmo.dodo.validation.ChecksumValidator;
 
 public class JsonScriptParserTest {
 
     private static final String HASH_ALGORITHM = "hashAlgorithm";
 
     private Function<URI, DodoDownload> downloadFactoryMock;
-    private BiFunction<Supplier<DodoDownload>, String, HashCodeValidator> validatorFactoryMock;
+    private BiFunction<Supplier<DodoDownload>, String, ChecksumValidator> validatorFactoryMock;
 
     private JsonScriptParser underTest;
 

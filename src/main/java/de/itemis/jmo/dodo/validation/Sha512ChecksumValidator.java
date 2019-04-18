@@ -3,9 +3,9 @@ package de.itemis.jmo.dodo.validation;
 import de.itemis.jmo.dodo.io.DataSource;
 
 /**
- * {@link HashCodeValidator} implementation that validates according to the SHA-256 algorithm.
+ * {@link ChecksumValidator} implementation that validates according to the SHA-512 algorithm.
  */
-public class Sha256HashCodeValidator implements HashCodeValidator {
+public class Sha512ChecksumValidator implements ChecksumValidator {
 
     @Override
     public boolean verify(DataSource dataSource) {

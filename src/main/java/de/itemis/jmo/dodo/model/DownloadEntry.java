@@ -1,10 +1,8 @@
 package de.itemis.jmo.dodo.model;
 
 
+import static de.itemis.jmo.dodo.util.DataSourceUtil.safeClose;
 import static java.util.Objects.requireNonNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -16,14 +14,12 @@ import de.itemis.jmo.dodo.io.DodoDownload;
 import de.itemis.jmo.dodo.io.DownloadResult;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.io.ProgressListener;
-import de.itemis.jmo.dodo.validation.HashCodeValidator;
+import de.itemis.jmo.dodo.validation.ChecksumValidator;
 
 /**
  * An entry of the table of downloadable content.
  */
 public class DownloadEntry {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DownloadEntry.class);
 
     private final String artifactName;
     private final DownloadScript downloadScript;
@@ -79,27 +75,19 @@ public class DownloadEntry {
                 updateDownloadProgress(percentage);
             });
         } finally {
-            safeClose(dataSource);
+            safeClose(this.getClass(), dataSource);
         }
     }
 
-    private boolean verifyDownloadChecksum(Path targetPath, HashCodeValidator validator) {
+    private boolean verifyDownloadChecksum(Path targetPath, ChecksumValidator validator) {
         boolean hashCodeValidationResult = false;
         DataSource dataSource = persistence.read(targetPath);
         try {
             hashCodeValidationResult = validator.verify(dataSource);
         } finally {
-            safeClose(dataSource);
+            safeClose(this.getClass(), dataSource);
         }
         return hashCodeValidationResult;
-    }
-
-    private void safeClose(DataSource dataSource) {
-        try {
-            dataSource.close();
-        } catch (Exception e) {
-            LOG.warn("Encountered unexpected error while closing dataSource.", e);
-        }
     }
 
     private void updateDownloadProgress(double percentage) {

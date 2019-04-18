@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 import java.util.function.Supplier;
 
 import de.itemis.jmo.dodo.io.DodoDownload;
-import de.itemis.jmo.dodo.validation.HashCodeValidator;
+import de.itemis.jmo.dodo.validation.ChecksumValidator;
 
 public class DownloadScriptTest {
 
     private DodoDownload downloadMock;
     private Supplier<DodoDownload> downloadSup;
-    private HashCodeValidator hashCodeValidatorMock;
-    private Supplier<HashCodeValidator> hashCodeValidatorSup;
+    private ChecksumValidator hashCodeValidatorMock;
+    private Supplier<ChecksumValidator> hashCodeValidatorSup;
 
     private DownloadScript underTest;
 
@@ -24,7 +24,7 @@ public class DownloadScriptTest {
     public void setUp() {
         downloadMock = mock(DodoDownload.class);
         downloadSup = () -> downloadMock;
-        hashCodeValidatorMock = mock(HashCodeValidator.class);
+        hashCodeValidatorMock = mock(ChecksumValidator.class);
         hashCodeValidatorSup = () -> hashCodeValidatorMock;
 
         underTest = new DownloadScript(downloadSup, hashCodeValidatorSup);

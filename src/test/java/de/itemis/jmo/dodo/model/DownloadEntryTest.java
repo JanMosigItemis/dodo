@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -30,7 +31,7 @@ import de.itemis.jmo.dodo.io.DownloadResult;
 import de.itemis.jmo.dodo.io.Persistence;
 import de.itemis.jmo.dodo.io.ProgressListener;
 import de.itemis.jmo.dodo.tests.util.Console;
-import de.itemis.jmo.dodo.validation.HashCodeValidator;
+import de.itemis.jmo.dodo.validation.ChecksumValidator;
 
 @RunWith(JUnitPlatform.class)
 public class DownloadEntryTest {
@@ -39,10 +40,11 @@ public class DownloadEntryTest {
     private static final long ARTIFACT_SIZE = 100;
     private static final Path FAKE_PATH = Paths.get(DownloadEntryTest.class.getSimpleName() + "FakePath");
 
+    @RegisterExtension
     Console console = new Console();
 
     private DownloadScript downloadScriptMock;
-    private HashCodeValidator hashCodeValidatorMock;
+    private ChecksumValidator hashCodeValidatorMock;
     private Persistence persistenceMock;
 
     private DodoDownload downloadMock;
@@ -54,7 +56,7 @@ public class DownloadEntryTest {
     @BeforeEach
     public void setUp() {
         downloadScriptMock = mock(DownloadScript.class);
-        hashCodeValidatorMock = mock(HashCodeValidator.class);
+        hashCodeValidatorMock = mock(ChecksumValidator.class);
         persistenceMock = mock(Persistence.class);
         downloadMock = mock(DodoDownload.class);
         downloadDataSourceMock = mock(DataSource.class);
@@ -211,8 +213,8 @@ public class DownloadEntryTest {
 
         download();
 
-        console.anyLineContains("Encountered unexpected error while closing dataSource.");
-        console.anyLineContains(EXPECTED_IO_EXCEPTION.getMessage());
+        console.assertAnyLineContains("Encountered unexpected error while closing dataSource.");
+        console.assertAnyLineContains(EXPECTED_IO_EXCEPTION.getMessage());
     }
 
     /*
