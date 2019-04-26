@@ -54,4 +54,10 @@ public class Md5ChecksumValidatorTest {
 
         ExpectedExceptions.assertThatThrownBy(() -> underTest.verify(goodDataMock), DODO_EXCEPTION);
     }
+
+    @Test
+    public void when_array_passed_to_constructor_is_changed_then_changes_are_not_reflected_withing_validator_instance() {
+        EXPECTED_CHECKSUM[0] = 123;
+        assertThat(underTest.verify(goodDataMock)).as("Changes in expected checksum must not be reflected into the validator instance.").isTrue();
+    }
 }

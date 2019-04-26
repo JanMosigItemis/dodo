@@ -3,6 +3,8 @@
  */
 package de.itemis.jmo.dodo.validation;
 
+import static java.util.Arrays.copyOf;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -24,7 +26,7 @@ public class Md5ChecksumValidator implements ChecksumValidator {
      * @param expectedChecksum
      */
     public Md5ChecksumValidator(byte[] expectedChecksum) {
-        this.expectedChecksum = expectedChecksum;
+        this.expectedChecksum = copyOf(expectedChecksum, expectedChecksum.length);
     }
 
     @Override
